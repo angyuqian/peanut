@@ -1,0 +1,5 @@
+peanut-seed.json
+peanut-backup-*.json
+*.ics
+.DS_Store
+Thumbs.db

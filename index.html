@@ -1,0 +1,2117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Peanut</title>
+<meta name="theme-color" content="#F1F4E8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1F1A17" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Peanut">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Mali:wght@500;600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F1F4E8; --surface:#FFFDF8; --surface2:#F6F2E8; --ink:#3A2A22; --muted:#76665A; --line:#E3DBCB;
+  --pb:#D89B4A; --pb-ink:#7E5017; --pb-soft:#F7E4C3; --shell:#EBCF9E; --shell-dot:#C79A5B;
+  --jelly:#C8436E; --jelly-soft:#F9DDE6; --sage:#4F8661; --sage-soft:#DCEBDD; --sky:#4F7FA6; --sky-soft:#DDEAF4;
+  --alarm:#B42318; --alarm-soft:#FDE6E2; --sticky:#FFF0A6; --on-jelly:#FFFFFF;
+  --mood:#D4507A; --energy:#B9852C; --sleep:#9DBAD3; --chart-surface:#FFFDF8;
+  --shadow:0 1px 0 rgba(58,42,34,.05), 0 10px 28px -16px rgba(58,42,34,.28);
+  --fd:'Fredoka', ui-rounded, system-ui, sans-serif; --fb:'Nunito', system-ui, -apple-system, sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#1F1A17; --surface:#2B2420; --surface2:#342B26; --ink:#F3E9DF; --muted:#B9A999; --line:#463A31;
+    --pb:#E0A85A; --pb-ink:#F2C487; --pb-soft:#4A3923; --shell:#C9A26A; --shell-dot:#8E6B3C;
+    --jelly:#EE85A6; --jelly-soft:#4B2733; --sage:#8DC39D; --sage-soft:#273A2D; --sky:#9CC3E0; --sky-soft:#22323D;
+    --alarm:#FF9A8B; --alarm-soft:#4A221D; --sticky:#FFE98A; --on-jelly:#2A1018;
+    --mood:#D65D86; --energy:#B4863A; --sleep:#4E6C84; --chart-surface:#2B2420;
+    --shadow:0 1px 0 rgba(0,0,0,.2), 0 10px 28px -16px rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--pb-ink)}
+:focus-visible{outline:3px solid var(--pb);outline-offset:2px;border-radius:8px}
+.wrap{max-width:660px;margin:0 auto;padding:0 16px calc(104px + env(safe-area-inset-bottom))}
+.top{position:sticky;top:0;z-index:6;display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 0 10px;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.brand{display:flex;align-items:center;gap:8px;font-family:var(--fd);font-weight:600;font-size:22px;letter-spacing:.2px}
+.grow{flex:1}
+.sync{border:0;background:var(--surface);border-radius:99px;padding:5px 11px 5px 9px;font-size:12.5px;font-weight:700;color:var(--muted);display:inline-flex;align-items:center;gap:6px;cursor:pointer;box-shadow:var(--shadow)}
+.sync i{width:8px;height:8px;border-radius:50%;background:var(--sage);display:inline-block}
+.sync[data-s="saving"] i,.sync[data-s="pending"] i{background:var(--pb);animation:pulse 1s infinite alternate}
+.sync[data-s="offline"] i,.sync[data-s="error"] i{background:var(--alarm)}
+.sync[data-s="local"] i{background:var(--sky)}
+@keyframes pulse{to{opacity:.35}}
+h1{font-family:var(--fd);font-weight:600;font-size:28px;line-height:1.15;margin:14px 0 6px}
+h2{font-family:var(--fd);font-weight:500;font-size:20px;line-height:1.2;margin:30px 0 10px;display:flex;align-items:baseline;gap:10px}
+h2 small{font-family:var(--fb);font-size:13.5px;font-weight:700;color:var(--muted)}
+h3{font-family:var(--fd);font-weight:500;font-size:17px;margin:18px 0 6px}
+p{margin:6px 0}
+.muted{color:var(--muted)}
+.small{font-size:13.5px}
+.panel{background:var(--surface);border-radius:22px;padding:6px 16px;box-shadow:var(--shadow)}
+.panel.pad{padding:16px}
+.row{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.panel>.row:first-child,.panel>.rows>.row:first-child{border-top:0}
+.row .main{flex:1;min-width:0}
+.row .t{font-weight:700;line-height:1.3}
+.row .s{font-size:13.5px;color:var(--muted);line-height:1.35;margin-top:2px}
+.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tap{cursor:pointer;background:none;border:0;padding:0;text-align:left;width:100%}
+.tap:hover .t{text-decoration:underline;text-decoration-color:var(--pb);text-underline-offset:3px}
+.price{font-family:var(--fd);font-weight:500;white-space:nowrap}
+.btn{border:0;border-radius:14px;padding:11px 16px;font-weight:800;font-size:15px;cursor:pointer;background:var(--ink);color:var(--bg);display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;line-height:1.2}
+.btn.pb{background:var(--pb);color:#2C1D10}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn.danger{color:var(--alarm)}
+.btn.sm{padding:7px 12px;font-size:13.5px;border-radius:11px}
+.btn.block{width:100%}
+.btn:disabled{opacity:.5;cursor:default}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips.scroll{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.chips.scroll::-webkit-scrollbar{display:none}
+.chip{flex:none;display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:7px 13px;font-weight:700;font-size:14px;border:0;box-shadow:inset 0 0 0 1.5px var(--line);background:var(--surface);color:var(--ink);cursor:pointer;line-height:1.2}
+.chip[aria-pressed="true"]{background:var(--pb-soft);box-shadow:inset 0 0 0 1.5px var(--pb)}
+.chip .n{font-weight:800;color:var(--muted);font-size:12.5px}
+.seg{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:16px;margin:8px 0 4px;overflow-x:auto;scrollbar-width:none}
+.seg button{flex:1;border:0;background:none;padding:8px 10px;border-radius:12px;font-weight:800;font-size:14px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+input[type=text],input[type=password],input[type=number],input[type=date],input[type=time],input[type=url],input[type=tel],input:not([type]),select,textarea{width:100%;background:var(--surface2);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;min-height:44px}
+textarea{min-height:76px;resize:vertical}
+label.f{display:block;margin:12px 0 0}
+label.f>span{display:block;font-size:13.5px;font-weight:800;color:var(--muted);margin-bottom:4px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+input[type=checkbox].box{appearance:none;-webkit-appearance:none;width:26px;height:26px;flex:none;border-radius:9px;border:2px solid var(--line);background:var(--surface);cursor:pointer;display:grid;place-content:center;margin:0}
+input[type=checkbox].box:checked{background:var(--sage);border-color:var(--sage)}
+input[type=checkbox].box:checked::after{content:"";width:11px;height:6px;border:solid var(--surface);border-width:0 0 3px 3px;transform:rotate(-45deg) translate(1px,-1px)}
+.done .t{text-decoration:line-through;color:var(--muted)}
+select.st{width:auto;min-height:0;appearance:none;-webkit-appearance:none;border:0;border-radius:99px;padding:5px 12px;font-size:12.5px;font-weight:800;cursor:pointer;background:var(--surface2);color:var(--muted)}
+.st-todo{background:var(--jelly-soft)!important;color:var(--jelly)!important}
+.st-us{background:var(--sky-soft)!important;color:var(--sky)!important}
+.st-ordered{background:var(--pb-soft)!important;color:var(--pb-ink)!important}
+.st-bought,.st-gift{background:var(--sage-soft)!important;color:var(--sage)!important}
+.st-skip{text-decoration:line-through}
+.tag{display:inline-block;font-size:12px;font-weight:800;padding:2px 8px;border-radius:99px;background:var(--surface2);color:var(--muted);white-space:nowrap}
+.tag.mom{background:var(--jelly-soft);color:var(--jelly)}
+.tag.dad{background:var(--sky-soft);color:var(--sky)}
+.tag.both{background:var(--pb-soft);color:var(--pb-ink)}
+.tag.late{background:var(--alarm-soft);color:var(--alarm)}
+.bar{height:10px;border-radius:99px;background:var(--surface2);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--pb);border-radius:99px}
+.bar.sage>i{background:var(--sage)}
+.stat{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:12px 0 6px;font-weight:700}
+.stat b{font-family:var(--fd);font-weight:500}
+/* hero */
+.hero{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:center;margin:8px 0 6px}
+.hero .big{font-family:var(--fd);font-weight:600;font-size:40px;line-height:1;letter-spacing:-.5px}
+.hero .big small{font-size:22px;font-weight:500}
+.hero .when{color:var(--muted);font-weight:700;margin-top:6px}
+.hero .fruit{margin-top:10px;font-size:15.5px}
+.hero .fruit b{font-weight:800}
+.peanut-wrap{position:relative;width:150px;height:150px}
+.peanut-wrap svg{display:block}
+.wiggle{transform-origin:50% 90%;animation:wig 1.4s ease-in-out .2s 1}
+@keyframes wig{0%,100%{transform:rotate(0)}20%{transform:rotate(-6deg)}45%{transform:rotate(5deg)}70%{transform:rotate(-3deg)}}
+@media (prefers-reduced-motion: reduce){.wiggle,.sync i{animation:none!important}}
+.sticky{background:var(--sticky);color:#3A2A22;padding:12px 14px;border-radius:6px 6px 16px 6px;transform:rotate(-1deg);box-shadow:0 8px 18px -12px rgba(0,0,0,.45);font-weight:800;margin:14px 4px}
+.alert{background:var(--alarm-soft);border-radius:16px;padding:12px 14px;margin:10px 0;display:flex;gap:10px;align-items:flex-start;font-weight:700}
+.alert .ic{flex:none;width:24px;height:24px;border-radius:50%;background:var(--alarm);color:var(--alarm-soft);display:grid;place-content:center;font-weight:900;font-size:15px;line-height:1}
+.soft{background:var(--pb-soft);border-radius:18px;padding:14px 16px;margin:12px 0}
+.soft.sky{background:var(--sky-soft)}
+/* pickers */
+.picks{display:flex;gap:6px}
+.pick{flex:1;position:relative}
+.pick input{position:absolute;opacity:0;inset:0;pointer-events:none}
+.pick span{display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 2px;border-radius:14px;background:var(--surface2);cursor:pointer;font-size:12px;font-weight:800;color:var(--muted);text-align:center;line-height:1.2;box-shadow:inset 0 0 0 1.5px transparent}
+.pick span em{font-style:normal;font-size:24px;line-height:1.1}
+.pick input:checked+span{background:var(--pb-soft);color:var(--ink);box-shadow:inset 0 0 0 2px var(--pb)}
+.pick input:focus-visible+span{outline:3px solid var(--pb);outline-offset:2px}
+.tg{position:relative}
+.tg input{position:absolute;opacity:0;pointer-events:none}
+.tg span{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:6px 12px;font-weight:700;font-size:13.5px;box-shadow:inset 0 0 0 1.5px var(--line);background:var(--surface);cursor:pointer}
+.tg input:checked+span{background:var(--pb-soft);box-shadow:inset 0 0 0 1.5px var(--pb)}
+.tg.red span::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--alarm)}
+.tg.red input:checked+span{background:var(--alarm-soft);box-shadow:inset 0 0 0 1.5px var(--alarm)}
+.tg input:focus-visible+span{outline:3px solid var(--pb);outline-offset:2px}
+.qlabel{font-weight:800;font-size:14px;margin:16px 0 8px}
+/* timeline */
+ol.tl{list-style:none;margin:0;padding:4px 0}
+ol.tl li{display:grid;grid-template-columns:96px 18px 1fr;gap:10px;align-items:start;position:relative;padding:8px 0}
+ol.tl li::before{content:"";position:absolute;left:104px;top:0;bottom:0;width:2px;background:var(--line)}
+ol.tl li:first-child::before{top:16px}
+ol.tl li:last-child::before{bottom:calc(100% - 16px)}
+ol.tl .d{font-weight:800;font-size:13.5px;color:var(--muted);text-align:right;padding-top:1px}
+ol.tl .dot{width:14px;height:14px;border-radius:50%;background:var(--surface);border:3px solid var(--pb);margin-top:4px;position:relative;z-index:1}
+ol.tl li.past .dot{background:var(--pb)}
+ol.tl li.now .dot{border-color:var(--jelly);background:var(--jelly)}
+ol.tl .x b{display:block;line-height:1.3}
+ol.tl .x span{font-size:13.5px;color:var(--muted)}
+/* chart */
+.legend{display:flex;gap:14px;font-size:13px;font-weight:700;color:var(--muted);margin:2px 0 6px}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.chart{position:relative}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12.5px;font-weight:700;padding:7px 10px;border-radius:10px;white-space:nowrap;transform:translate(-50%,-110%);opacity:0;transition:opacity .1s}
+/* nav */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--surface);box-shadow:0 -1px 0 var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs .in{max-width:660px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
+nav.tabs button{border:0;background:none;padding:8px 0 9px;display:flex;flex-direction:column;align-items:center;gap:3px;font-weight:800;font-size:11.5px;color:var(--muted);cursor:pointer}
+nav.tabs button svg{width:24px;height:24px;padding:3px 10px;box-sizing:content-box;border-radius:99px}
+nav.tabs button[aria-current="page"]{color:var(--ink)}
+nav.tabs button[aria-current="page"] svg{background:var(--pb-soft)}
+/* sheet */
+dialog.sheet{border:0;padding:0;width:min(660px,100%);max-width:100%;max-height:90vh;margin:auto auto 0;border-radius:26px 26px 0 0;background:var(--surface);color:var(--ink);box-shadow:0 -10px 40px -10px rgba(0,0,0,.35)}
+dialog.sheet::backdrop{background:rgba(31,26,23,.45)}
+dialog.sheet form{padding:18px 18px calc(18px + env(safe-area-inset-bottom))}
+dialog.sheet h3{margin-top:0;font-size:21px}
+.acts{display:flex;gap:8px;align-items:center;margin-top:18px;flex-wrap:wrap}
+@media (min-width:720px){dialog.sheet{margin:auto;border-radius:26px}}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-weight:800;font-size:14px;opacity:0;transition:.2s;z-index:20;pointer-events:none;max-width:90vw;text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+/* gate */
+.gate{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+.gate .card{width:min(440px,100%);background:var(--surface);border-radius:28px;padding:26px 22px;box-shadow:var(--shadow)}
+.gate h1{margin-top:12px}
+.err{color:var(--alarm);font-weight:800;margin-top:10px;min-height:1.5em}
+.names .hearts{display:flex;gap:2px}
+.hb{border:0;background:none;padding:2px;cursor:pointer;font-size:19px;line-height:1;filter:grayscale(1);opacity:.35}
+.hb.on{filter:none;opacity:1}
+.who{font-size:12px;font-weight:800;color:var(--muted);width:34px;text-align:right}
+.empty{padding:18px 0;color:var(--muted);text-align:center;font-weight:700}
+.x-btn{border:0;background:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 6px;line-height:1}
+details summary{cursor:pointer;font-weight:800;padding:12px 0;color:var(--muted)}
+.call{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:380px){.hero{grid-template-columns:118px 1fr;gap:12px}.peanut-wrap{width:118px;height:118px}.hero .big{font-size:34px}}
+/* home scene */
+.scene{position:relative;background:var(--pb-soft);border-radius:30px;padding:18px 18px 16px;margin:6px 0 4px;overflow:hidden}
+.scene-top{display:grid;grid-template-columns:1fr 124px;gap:8px;align-items:center;position:relative}
+.scene .big{font-family:var(--fd);font-weight:600;font-size:46px;line-height:1;letter-spacing:-.5px}
+.scene .big small{font-size:22px;font-weight:500;margin-left:2px}
+.scene .sub{font-weight:800;margin-top:8px;font-size:16.5px}
+.scene .size{margin-top:8px;font-size:14.5px;color:var(--muted);font-weight:700;display:flex;gap:8px;align-items:center;line-height:1.3}
+.scene .emo{font-size:28px;line-height:1}
+.scene .peanut-wrap{width:124px;height:124px}
+.scene .peanut-wrap>div{inset:18px 28px!important}
+.deco{position:absolute;pointer-events:none}
+.bubble{position:relative;background:var(--surface);border-radius:24px;padding:14px 16px 14px;margin-top:14px;box-shadow:var(--shadow)}
+.bubble::before{content:"";position:absolute;top:-11px;right:50px;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-bottom:12px solid var(--surface)}
+.hand{font-family:'Mali',var(--fd);font-weight:600;font-size:19px;line-height:1.38;margin:0}
+.hand.sm{font-size:16.5px}
+.sig{font-family:'Mali',var(--fd);font-weight:600;font-size:15px;color:var(--muted);text-align:right;margin-top:2px}
+.sig::before{content:"♡ "}
+.bubble-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.fwd{margin-top:14px;padding-top:12px;border-top:1.5px dashed var(--line)}
+.fwd .hand{margin:4px 0 10px}
+/* love */
+.love{margin-top:14px}
+.love-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn.jelly{background:var(--jelly);color:var(--on-jelly)}
+.love-line{font-weight:700;color:var(--muted);font-size:14.5px;margin:10px 4px 0}
+.env{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;border:0;cursor:pointer;background:var(--jelly-soft);color:var(--ink);border-radius:20px;padding:58px 16px 16px;margin-top:12px;overflow:hidden}
+.env::before{content:"";position:absolute;left:0;right:0;top:0;height:54px;background:color-mix(in srgb,var(--jelly) 22%,var(--jelly-soft));clip-path:polygon(0 0,100% 0,50% 100%)}
+.env .seal{position:absolute;top:30px;left:50%;transform:translateX(-50%);width:46px;height:46px;border-radius:50%;background:var(--jelly);display:grid;place-content:center;font-size:20px;box-shadow:0 6px 14px -6px rgba(200,67,110,.7)}
+.env b{font-family:var(--fd);font-weight:500;font-size:18px;margin-top:14px}
+.paper{background:var(--sticky);color:#3A2A22;border-radius:6px 6px 18px 6px;padding:14px 16px 10px;transform:rotate(-1deg);box-shadow:0 10px 20px -14px rgba(0,0,0,.5);margin:14px 4px 0}
+.paper .sig{color:#7a6650}
+.heartfx{position:fixed;z-index:40;pointer-events:none;font-size:22px;animation:floatup 1.1s ease-out forwards;opacity:0}
+@keyframes floatup{0%{transform:translate(0,0) scale(.5);opacity:1}100%{transform:translate(var(--dx),-110px) scale(1.25);opacity:0}}
+/* quick mood */
+.pick-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 2px;border-radius:14px;background:var(--surface2);border:0;cursor:pointer;font-size:12px;font-weight:800;color:var(--muted);line-height:1.2}
+.pick-btn em{font-style:normal;font-size:26px;line-height:1.1}
+.pick-btn.on{background:var(--pb-soft);color:var(--ink);box-shadow:inset 0 0 0 2px var(--pb)}
+/* stickers */
+.stickers{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.stk{border:0;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;color:var(--ink);text-align:center}
+.stk-ring{position:relative;width:72px;height:72px;display:block}
+.stk-ring>span{position:absolute;inset:0;display:grid;place-content:center;font-size:26px}
+.stk b{font-size:14px;margin-top:4px;line-height:1.2}
+/* baby */
+.qgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.qgrid.sm{margin-top:12px}
+.qb{position:relative;border:0;cursor:pointer;background:var(--surface);box-shadow:var(--shadow);border-radius:20px;padding:12px 2px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:800;font-size:13px;color:var(--ink)}
+.panel .qb{background:var(--surface2);box-shadow:none}
+.qb em{font-style:normal;font-size:26px;line-height:1}
+.qb.hint::after{content:"next";position:absolute;top:-7px;right:-2px;background:var(--jelly);color:var(--on-jelly);font-size:10.5px;font-weight:800;padding:1px 6px;border-radius:99px}
+.qb.on{box-shadow:inset 0 0 0 2px var(--pb)}
+.since2{display:grid;grid-template-columns:1.4fr 1fr;gap:10px}
+.since2>div{display:flex;flex-direction:column}
+.since2 b{font-family:var(--fd);font-weight:500;font-size:22px;line-height:1.2}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.tiles:has(> :nth-child(3):last-child){grid-template-columns:repeat(3,1fr)}
+.tile{background:var(--surface2);border-radius:16px;padding:10px 4px;text-align:center;display:flex;flex-direction:column}
+.tile b{font-family:var(--fd);font-weight:500;font-size:21px;line-height:1.1}
+.tile span{font-size:12px;font-weight:800;color:var(--muted)}
+.live{display:flex;align-items:center;gap:12px;background:var(--sky-soft);border-radius:20px;padding:12px 14px;margin:10px 0;flex-wrap:wrap}
+.live-ic{font-size:30px}
+.live .clock{font-family:var(--fd);font-weight:500;font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums}
+.live-acts{display:flex;gap:6px;margin-left:auto}
+.lic{font-size:22px;width:28px;text-align:center;flex:none}
+.bigbtn{font-size:19px;padding:20px;border-radius:20px;font-family:var(--fd);font-weight:500}
+.clock-in{font-variant-numeric:tabular-nums;margin-left:6px}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:right;font-size:12.5px;color:var(--muted);font-weight:800;padding:4px 6px}
+.tbl td{text-align:right;padding:7px 6px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+dialog.sheet .sheet-pad{padding:18px 18px calc(18px + env(safe-area-inset-bottom))}
+@media (max-width:370px){.scene .big{font-size:40px}.scene-top{grid-template-columns:1fr 108px}.scene .peanut-wrap{width:108px;height:108px}.qb span{font-size:12px}}
+@media (prefers-reduced-motion: reduce){.heartfx{display:none}}
+.scene .due{font-size:14px;font-weight:700;color:var(--muted);margin-top:2px}
+.top .greet{display:none;flex-direction:column;line-height:1.2}
+.top .greet b{font-family:var(--fd);font-weight:500;font-size:24px}
+.top .greet span{font-size:13.5px;color:var(--muted);font-weight:700}
+nav.tabs .side-brand,nav.tabs .side-foot{display:none}
+@media (min-width:1000px){
+  body{padding-left:248px}
+  .wrap{max-width:1200px;padding:0 44px 64px}
+  .top{padding:24px 0 12px;background:var(--bg);backdrop-filter:none;-webkit-backdrop-filter:none;position:static}
+  .top .brand{display:none}
+  .top .greet{display:flex}
+  nav.tabs{top:0;bottom:0;right:auto;width:248px;padding:26px 16px 20px;box-shadow:1px 0 0 var(--line);display:flex;flex-direction:column;gap:26px}
+  nav.tabs .side-brand{display:flex;align-items:center;gap:10px;font-family:var(--fd);font-weight:600;font-size:27px;padding:0 10px}
+  nav.tabs .side-brand svg{width:30px;height:38px}
+  nav.tabs .in{display:flex;flex-direction:column;gap:4px;max-width:none;margin:0}
+  nav.tabs button{flex-direction:row;justify-content:flex-start;gap:12px;padding:11px 14px;font-size:15.5px;border-radius:14px}
+  nav.tabs button svg{padding:0;width:22px;height:22px}
+  nav.tabs button[aria-current="page"] svg{background:none}
+  nav.tabs button:hover{background:var(--surface2);color:var(--ink)}
+  nav.tabs button[aria-current="page"]{background:var(--pb-soft)}
+  nav.tabs .side-foot{display:flex;flex-direction:column;margin-top:auto;padding:14px 16px;border-radius:18px;background:var(--surface2);line-height:1.3}
+  nav.tabs .side-foot b{font-family:var(--fd);font-weight:500;font-size:19px}
+  nav.tabs .side-foot span{font-size:13.5px;color:var(--muted);font-weight:700}
+  h1{font-size:34px;margin-top:4px}
+  .dash{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;align-items:start}
+  .dash.home{grid-template-columns:minmax(0,1.12fr) minmax(0,1fr)}
+  .dash>.col>h2:first-child{margin-top:12px}
+  .dash>.col>.scene:first-child{margin-top:12px}
+  .dash>.col>.panel:first-child,.dash>.col>form:first-child{margin-top:12px}
+  .masonry{column-count:2;column-gap:32px}
+  .masonry .sec{break-inside:avoid;padding-top:1px}
+  .masonry .sec h3:first-child{margin-top:8px}
+  .more-body:not(.wide),.narrow,.seg{max-width:780px}
+  .scene{padding:24px 24px 20px}
+  .scene .big{font-size:56px}
+  .scene-top{grid-template-columns:1fr 150px}
+  .scene .peanut-wrap{width:150px;height:150px}
+  .toast{bottom:28px;left:calc(50% + 124px)}
+  dialog.sheet{margin:auto;border-radius:26px}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<dialog id="sheet" class="sheet"></dialog>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+/* =========================================================
+   Peanut. A private, encrypted family dashboard.
+   This file holds no personal data. Everything personal lives
+   in an AES-GCM encrypted vault (passphrase never leaves the device).
+   ========================================================= */
+
+/* ---------- helpers ---------- */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const now = () => Date.now();
+const LS = {
+  get(k){ try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v){ try { localStorage.setItem(k, v); } catch {} },
+  del(k){ try { localStorage.removeItem(k); } catch {} },
+};
+const DAY = 86400000;
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const today = () => ymd(new Date());
+const parseD = s => { if (!s) return null; const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d, 12); };
+const addDays = (s, n) => ymd(new Date(parseD(s).getTime() + n * DAY));
+const diffDays = (a, b) => Math.round((parseD(a) - parseD(b)) / DAY);
+const yr = d => d.getFullYear() === new Date().getFullYear() ? {} : { year: 'numeric' };
+const fmtD = s => { if (!s) return ''; const d = parseD(s); return d.toLocaleDateString('en-SG', { day: 'numeric', month: 'short', ...yr(d) }); };
+const fmtDW = s => { if (!s) return ''; const d = parseD(s); return d.toLocaleDateString('en-SG', { weekday: 'short', day: 'numeric', month: 'short', ...yr(d) }); };
+const money = n => (n === null || n === undefined || n === '' || isNaN(n)) ? '' :
+  '$' + Number(n).toLocaleString('en-SG', { minimumFractionDigits: Number(n) % 1 ? 2 : 0, maximumFractionDigits: 2 });
+const sum = (arr, f) => arr.reduce((s, x) => s + (Number(f(x)) || 0), 0);
+const plural = (n, w, ws) => `${n} ${n === 1 ? w : (ws || w + 's')}`;
+
+/* ---------- crypto ---------- */
+const enc = new TextEncoder(), dec = new TextDecoder();
+const ITER = 600000;
+function b64e(bytes){ let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s); }
+function b64d(str){ const s = atob(str); const a = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a; }
+const utf8b64 = str => b64e(enc.encode(str));
+const b64utf8 = str => dec.decode(b64d(str.replace(/\s/g, '')));
+async function deriveKey(pass, saltB64, iter){
+  const base = await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b64d(saltB64), iterations: iter || ITER, hash: 'SHA-256' },
+    base, { name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+}
+async function seal(key, str){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(str)));
+  return { v: 1, iv: b64e(iv), ct: b64e(ct) };
+}
+async function unseal(key, box){
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64d(box.iv) }, key, b64d(box.ct));
+  return dec.decode(pt);
+}
+const exportKey = async k => b64e(new Uint8Array(await crypto.subtle.exportKey('raw', k)));
+const importKey = async s => crypto.subtle.importKey('raw', b64d(s), { name: 'AES-GCM' }, true, ['encrypt', 'decrypt']);
+
+/* ---------- state ---------- */
+const COLLS = ['registry','bags','tasks','appts','money','nannies','centres','books','names','checkins','care','needs','links','jar','hugs','log'];
+const Store = { cfg: null, key: null, token: null, data: null, sha: null, dirty: false, rev: 0, saving: false, again: false,
+  timer: null, status: 'synced', statusMsg: '', lastSync: 0, needsRender: false, flags: [], chart: null,
+  ui: { tab: LS.get('peanut.tab') || 'home', gear: 'registry', regFilter: 'all', more: 'names', plan: 'open', owner: 'all' } };
+const D = () => Store.data;
+const M = () => Store.data.meta;
+const live = c => (Store.data[c] || []).filter(r => !r.del);
+const me = () => LS.get('peanut.me') || '';
+const nameOf = role => role === 'mom' ? (M().mom || 'Mama') : role === 'dad' ? (M().dad || 'Papa') : role === 'both' ? 'Both' : '';
+const CACHE = 'peanut.cache', KEYSTORE = 'peanut.key', LOCALCFG = 'peanut.local';
+
+function blankData(){
+  const d = { schema: 1, meta: { u: now(), edd: '', birth: '', mom: 'Mama', dad: 'Papa', nick: 'Peanut', surname: '',
+    cc: { name: '', options: [], days: 0, checkIn: '' }, nannyName: '', nannyStart: '', hospital: '', deliveryPhone: '',
+    gynae: '', gynaePhone: '', rule: '', momPhone: '' } };
+  COLLS.forEach(c => d[c] = []);
+  return d;
+}
+function normalise(d){
+  const b = blankData();
+  d.meta = Object.assign(b.meta, d.meta || {});
+  d.meta.cc = Object.assign({ name: '', options: [], days: 0, checkIn: '' }, d.meta.cc || {});
+  COLLS.forEach(c => { if (!Array.isArray(d[c])) d[c] = []; });
+  return d;
+}
+function merge(a, b){
+  if (!a) return normalise(b); if (!b) return normalise(a);
+  const out = { schema: 1, meta: (a.meta?.u || 0) >= (b.meta?.u || 0) ? a.meta : b.meta };
+  for (const c of COLLS){
+    const m = new Map();
+    for (const r of (a[c] || [])) m.set(r.id, r);
+    for (const r of (b[c] || [])){ const x = m.get(r.id); if (!x || (r.u || 0) > (x.u || 0)) m.set(r.id, r); }
+    out[c] = [...m.values()];
+  }
+  return normalise(out);
+}
+
+/* ---------- mutations ---------- */
+function upsert(c, r){
+  r.u = now();
+  const arr = D()[c] || (D()[c] = []);
+  const i = arr.findIndex(x => x.id === r.id);
+  if (i < 0) arr.push(r); else arr[i] = r;
+  touch();
+}
+function patch(c, id, fields){
+  const r = (D()[c] || []).find(x => x.id === id); if (!r) return;
+  Object.assign(r, fields, { u: now() }); touch();
+}
+const removeRec = (c, id) => patch(c, id, { del: true });
+function purge(){
+  const cut = now() - 30 * DAY;
+  for (const c of COLLS){ const a = D()[c]; if (a && a.some(r => r.del && (r.u || 0) < cut)) D()[c] = a.filter(r => !(r.del && (r.u || 0) < cut)); }
+}
+function setMeta(fields){ Object.assign(M(), fields, { u: now() }); touch(); }
+
+/* ---------- GitHub sync ---------- */
+const GH = 'https://api.github.com';
+async function ghReq(method, path, body){
+  const headers = { Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
+  if (Store.token) headers.Authorization = 'Bearer ' + Store.token;
+  if (body) headers['Content-Type'] = 'application/json';
+  return fetch(GH + path, { method, headers, body: body ? JSON.stringify(body) : undefined, cache: 'no-store' });
+}
+async function ghErr(r){
+  let m = ''; try { m = (await r.json()).message || ''; } catch {}
+  if (r.status === 401) return 'GitHub rejected the token (expired or revoked?)';
+  if (r.status === 403) return 'GitHub refused: ' + (m || 'token lacks Contents write access');
+  if (r.status === 404) return 'GitHub says not found. Check owner, repo and token access';
+  return `GitHub error ${r.status}${m ? ': ' + m : ''}`;
+}
+const gh = {
+  repoPath(){ const c = Store.cfg; return `/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}`; },
+  async getFile(path, branch){
+    const r = await ghReq('GET', `${gh.repoPath()}/contents/${path}?ref=${encodeURIComponent(branch)}&t=${now()}`);
+    if (r.status === 404) return null;
+    if (!r.ok) throw new Error(await ghErr(r));
+    const j = await r.json();
+    let content = j.content || '';
+    if ((!content || j.encoding === 'none') && j.size > 0){
+      // files over 1 MB come back without content; fetch the blob instead
+      const br = await ghReq('GET', `${gh.repoPath()}/git/blobs/${j.sha}`);
+      if (!br.ok) throw new Error(await ghErr(br));
+      content = (await br.json()).content || '';
+    }
+    return { sha: j.sha, text: b64utf8(content) };
+  },
+  async putFile(path, branch, text, sha, message){
+    const body = { message: message || 'Peanut sync', content: utf8b64(text), branch };
+    if (sha) body.sha = sha;
+    const r = await ghReq('PUT', `${gh.repoPath()}/contents/${path}`, body);
+    if (r.status === 409 || r.status === 422){ const e = new Error('conflict'); e.conflict = true; throw e; }
+    if (!r.ok) throw new Error(await ghErr(r));
+    return (await r.json()).content.sha;
+  },
+  get(){ return gh.getFile(Store.cfg.path, Store.cfg.branch); },
+  put(text, sha){ return gh.putFile(Store.cfg.path, Store.cfg.branch, text, sha); },
+};
+
+function setStatus(s, msg){
+  Store.status = s; Store.statusMsg = msg || '';
+  if (s === 'synced') Store.lastSync = now();
+  const el = $('#sync'); if (el){ el.dataset.s = s; el.querySelector('span').textContent = statusText(); el.title = Store.statusMsg || ''; }
+}
+function statusText(){
+  return ({ synced: 'Synced', pending: 'Saving', saving: 'Saving', local: 'On this phone', offline: 'Offline, kept here', error: 'Sync problem' })[Store.status] || '';
+}
+async function cacheLocal(){
+  // keep an encrypted copy on this device so offline edits survive a reload
+  const box = await seal(Store.key, JSON.stringify(D()));
+  if (Store.cfg.mode === 'local') LS.set(LOCALCFG + '.blob', JSON.stringify(box));
+  else LS.set(CACHE, JSON.stringify({ sha: Store.sha, dirty: Store.dirty, box, repo: Store.cfg.owner + '/' + Store.cfg.repo }));
+}
+function touch(){ Store.rev++; Store.dirty = true; cacheLocal(); scheduleSave(); }
+function scheduleSave(){ clearTimeout(Store.timer); Store.timer = setTimeout(save, 1200); if (Store.cfg.mode !== 'local') setStatus('pending'); }
+async function save(){
+  if (Store.saving){ Store.again = true; return; }
+  if (!Store.dirty) return;
+  Store.saving = true;
+  const rev = Store.rev;
+  try {
+    purge();
+    if (Store.cfg.mode === 'local'){ Store.dirty = Store.rev !== rev; await cacheLocal(); setStatus('local'); }
+    else {
+      setStatus('saving');
+      let ok = false, merged = false;
+      for (let attempt = 0; attempt < 4 && !ok; attempt++){
+        const text = JSON.stringify(await seal(Store.key, JSON.stringify(D())));
+        try {
+          Store.sha = await gh.put(text, Store.sha);
+          ok = true;
+        } catch (e){
+          if (!e.conflict) throw e;
+          const r = await gh.get();
+          if (r){ Store.data = merge(D(), JSON.parse(await unseal(Store.key, JSON.parse(r.text)))); Store.sha = r.sha; merged = true; }
+          else Store.sha = null;
+          await new Promise(res => setTimeout(res, 300 * (attempt + 1)));
+        }
+      }
+      if (!ok) throw new Error('Kept clashing with another device. Will retry.');
+      Store.dirty = Store.rev !== rev; await cacheLocal();
+      setStatus(Store.dirty ? 'pending' : 'synced');
+      if (merged) renderSafe();
+    }
+  } catch (e){
+    setStatus(navigator.onLine === false ? 'offline' : 'error', e.message);
+  } finally {
+    Store.saving = false;
+    if (Store.again || Store.dirty){ Store.again = false; if (Store.dirty && Store.status !== 'error' && Store.status !== 'offline') scheduleSave(); }
+  }
+}
+async function refresh(){
+  if (!Store.data || Store.cfg.mode === 'local' || Store.saving) return;
+  if (Store.dirty){ save(); return; }
+  try {
+    const r = await gh.get();
+    if (r && r.sha !== Store.sha){
+      const remote = JSON.parse(await unseal(Store.key, JSON.parse(r.text)));
+      Store.data = merge(remote, D()); Store.sha = r.sha; await cacheLocal(); renderSafe();
+    }
+    setStatus('synced');
+  } catch (e){ setStatus(navigator.onLine === false ? 'offline' : 'error', e.message); }
+}
+setInterval(() => { if (document.visibilityState === 'visible') refresh(); }, 45000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refresh(); });
+window.addEventListener('online', () => refresh());
+
+/* ---------- boot, setup, unlock ---------- */
+async function loadConfig(){
+  try {
+    const r = await fetch('config.json?t=' + now(), { cache: 'no-store' });
+    if (r.ok){ const j = await r.json(); if (j && j.salt && j.owner){ LS.set('peanut.ghcfg', JSON.stringify(j)); return { ...j, mode: 'github' }; } }
+  } catch {}
+  // Pages can lag a minute behind a fresh setup; fall back to the copy this device saved
+  const gc = LS.get('peanut.ghcfg'); if (gc) try { return { ...JSON.parse(gc), mode: 'github' }; } catch {}
+  const l = LS.get(LOCALCFG); if (l) try { return { ...JSON.parse(l), mode: 'local' }; } catch {}
+  return null;
+}
+async function boot(){
+  Store.cfg = await loadConfig();
+  if (!Store.cfg) return renderSetup();
+  const saved = LS.get(KEYSTORE);
+  if (saved){
+    try {
+      const s = JSON.parse(saved);
+      if (s.salt === Store.cfg.salt){ await openVault(await importKey(s.k)); return; }
+    } catch (e){ console.warn('Saved key failed', e); }
+    LS.del(KEYSTORE);
+  }
+  renderUnlock();
+}
+async function openVault(key){
+  Store.key = key;
+  if (Store.cfg.mode === 'local'){
+    const blob = LS.get(LOCALCFG + '.blob');
+    Store.data = normalise(JSON.parse(await unseal(key, JSON.parse(blob))));
+    Store.dirty = false; setStatus('local');
+  } else {
+    Store.token = await unseal(key, Store.cfg.token); // throws on wrong passphrase
+    let cached = null;
+    try { const c = JSON.parse(LS.get(CACHE) || 'null'); if (c && c.repo === Store.cfg.owner + '/' + Store.cfg.repo) cached = c; } catch {}
+    let cachedData = null;
+    if (cached){ try { cachedData = JSON.parse(await unseal(key, cached.box)); } catch { cachedData = null; } }
+    try {
+      const r = await gh.get();
+      if (!r) throw new Error('No vault file found in the repo yet');
+      const remote = JSON.parse(await unseal(key, JSON.parse(r.text)));
+      Store.sha = r.sha;
+      if (cachedData && cached.dirty){ Store.data = merge(remote, cachedData); Store.dirty = true; }
+      else { Store.data = normalise(remote); Store.dirty = false; }
+      setStatus('synced');
+    } catch (e){
+      if (!cachedData) throw e;
+      Store.data = normalise(cachedData); Store.sha = cached.sha; Store.dirty = !!cached.dirty;
+      setStatus(navigator.onLine === false ? 'offline' : 'error', e.message);
+    }
+    await cacheLocal();
+    if (Store.dirty) scheduleSave();
+  }
+  renderApp();
+  if (!me()) askWho();
+}
+function repoGuess(){
+  const h = location.hostname, m = /^([^.]+)\.github\.io$/i.exec(h);
+  if (!m) return { owner: '', repo: '' };
+  const seg = location.pathname.split('/').filter(Boolean)[0];
+  return { owner: m[1], repo: seg && !seg.includes('.') ? seg : `${m[1]}.github.io` };
+}
+function gateShell(inner){ return `<div class="gate"><div class="card">${peanutSVG(84, true)}${inner}</div></div>`; }
+function renderSetup(){
+  const g = repoGuess();
+  const onPages = !!g.owner;
+  $('#app').innerHTML = gateShell(`
+    <h1>Set up Peanut</h1>
+    <p class="muted">Everything is encrypted with your passphrase before it leaves this device. The site is public; the data isn't.</p>
+    <form data-s="setup" autocomplete="off">
+      <label class="f"><span>Passphrase</span><input name="pass" type="password" autocomplete="new-password" minlength="10" required></label>
+      <label class="f"><span>Same again</span><input name="pass2" type="password" autocomplete="new-password" required></label>
+      <p class="small muted">Four or more random words works well. There is no reset. Lose it and the data is gone, so write it down somewhere safe.</p>
+      <label class="f"><span>Starter data (optional)</span><input name="seed" type="file" accept=".json,application/json"></label>
+      <label class="f"><span>Due date</span><input name="edd" type="date" required></label>
+      <div class="qlabel">Where should it live?</div>
+      <div class="chips">
+        <label class="tg"><input type="radio" name="mode" value="github" ${onPages ? 'checked' : ''}><span>Sync both phones via GitHub</span></label>
+        <label class="tg"><input type="radio" name="mode" value="local" ${onPages ? '' : 'checked'}><span>This device only</span></label>
+      </div>
+      <div id="ghfields" ${onPages ? '' : 'hidden'}>
+        <div class="two">
+          <label class="f"><span>GitHub owner</span><input name="owner" value="${esc(g.owner)}" autocapitalize="off"></label>
+          <label class="f"><span>Repo</span><input name="repo" value="${esc(g.repo)}" autocapitalize="off"></label>
+        </div>
+        <label class="f"><span>Fine-grained token (this repo only, Contents: read and write)</span><input name="token" type="password" autocomplete="off"></label>
+      </div>
+      <div class="err" id="err"></div>
+      <button class="btn pb block" type="submit" style="margin-top:6px">Create Peanut</button>
+      <p class="small muted" style="margin-top:14px">Already set up on another phone? GitHub Pages takes a minute or two to update. Refresh shortly instead.</p>
+    </form>`);
+  const f = $('form[data-s=setup]');
+  f.addEventListener('change', async e => {
+    if (e.target.name === 'mode') $('#ghfields').hidden = f.mode.value !== 'github';
+    if (e.target.name === 'seed' && e.target.files[0]){
+      try { const s = JSON.parse(await e.target.files[0].text()); if (s.meta?.edd) f.edd.value = s.meta.edd; $('#err').textContent = ''; }
+      catch { $('#err').textContent = "That file isn't valid JSON."; }
+    }
+  });
+}
+function renderUnlock(){
+  $('#app').innerHTML = gateShell(`
+    <h1>Hello again</h1>
+    <p class="muted">Enter the passphrase to open Peanut.</p>
+    <form data-s="unlock">
+      <label class="f"><span>Passphrase</span><input name="pass" type="password" autocomplete="current-password" required autofocus></label>
+      <label class="tg" style="display:inline-block;margin-top:12px"><input type="checkbox" name="remember" checked><span>Keep this phone unlocked</span></label>
+      <div class="err" id="err"></div>
+      <button class="btn pb block" type="submit">Unlock</button>
+      <p class="small muted" style="margin-top:14px">${Store.cfg.mode === 'github' ? 'Synced through GitHub.' : 'Stored on this device only.'} Forgotten passphrases can't be recovered.</p>
+    </form>`);
+}
+async function doSetup(f){
+  const err = $('#err'); err.textContent = '';
+  const pass = f.pass.value, mode = f.mode.value;
+  if (pass.length < 10) return err.textContent = 'Use at least 10 characters.';
+  if (pass !== f.pass2.value) return err.textContent = "The two passphrases don't match.";
+  if (!f.edd.value) return err.textContent = 'Add the due date.';
+  let data = blankData();
+  if (f.seed.files[0]){
+    try { data = normalise(JSON.parse(await f.seed.files[0].text())); }
+    catch { return err.textContent = "Couldn't read the starter file."; }
+  }
+  data.meta.edd = f.edd.value; data.meta.u = now();
+  const btn = f.querySelector('button[type=submit]'); btn.disabled = true; btn.textContent = 'Encrypting';
+  try {
+    const salt = b64e(crypto.getRandomValues(new Uint8Array(16)));
+    const key = await deriveKey(pass, salt, ITER);
+    if (mode === 'local'){
+      Store.cfg = { mode: 'local', v: 1, salt, iter: ITER };
+      LS.set(LOCALCFG, JSON.stringify({ v: 1, salt, iter: ITER }));
+      Store.key = key; Store.data = data;
+      await cacheLocal(); setStatus('local');
+    } else {
+      const owner = f.owner.value.trim(), repo = f.repo.value.trim(), token = f.token.value.trim();
+      if (!owner || !repo || !token) throw new Error('Fill in owner, repo and token.');
+      Store.token = token;
+      Store.cfg = { mode: 'github', v: 1, owner, repo, branch: 'peanut-data', path: 'peanut.vault.json', salt, iter: ITER };
+      btn.textContent = 'Talking to GitHub';
+      const rr = await ghReq('GET', gh.repoPath());
+      if (!rr.ok) throw new Error(await ghErr(rr));
+      const repoInfo = await rr.json();
+      const main = repoInfo.default_branch || 'main';
+      const ref = await ghReq('GET', `${gh.repoPath()}/git/ref/heads/peanut-data`);
+      if (ref.status === 404){
+        const base = await ghReq('GET', `${gh.repoPath()}/git/ref/heads/${encodeURIComponent(main)}`);
+        if (!base.ok) throw new Error(await ghErr(base));
+        const sha = (await base.json()).object.sha;
+        const mk = await ghReq('POST', `${gh.repoPath()}/git/refs`, { ref: 'refs/heads/peanut-data', sha });
+        if (!mk.ok) throw new Error(await ghErr(mk));
+      } else if (!ref.ok) throw new Error(await ghErr(ref));
+      if (await gh.get()) throw new Error('This repo already has a Peanut vault. Wait for Pages to update and unlock it instead, or delete peanut.vault.json on the peanut-data branch to start over.');
+      Store.key = key; Store.data = data;
+      Store.sha = await gh.put(JSON.stringify(await seal(key, JSON.stringify(data))), null);
+      const pub = { v: 1, owner, repo, branch: 'peanut-data', path: 'peanut.vault.json', salt, iter: ITER, token: await seal(key, token) };
+      const existing = await gh.getFile('config.json', main);
+      await gh.putFile('config.json', main, JSON.stringify(pub, null, 2) + '\n', existing?.sha, 'Peanut: add encrypted config');
+      Store.cfg = { ...pub, mode: 'github' };
+      LS.set('peanut.ghcfg', JSON.stringify(pub));
+      Store.dirty = false; await cacheLocal(); setStatus('synced');
+    }
+    LS.set(KEYSTORE, JSON.stringify({ salt, k: await exportKey(key) }));
+    renderApp(); askWho();
+  } catch (e){
+    err.textContent = e.message || String(e);
+    btn.disabled = false; btn.textContent = 'Create Peanut';
+  }
+}
+async function doUnlock(f){
+  const err = $('#err'); err.textContent = '';
+  const btn = f.querySelector('button[type=submit]'); btn.disabled = true; btn.textContent = 'Opening';
+  try {
+    const key = await deriveKey(f.pass.value, Store.cfg.salt, Store.cfg.iter);
+    try {
+      if (Store.cfg.mode === 'local') await unseal(key, JSON.parse(LS.get(LOCALCFG + '.blob')));
+      else await unseal(key, Store.cfg.token);
+    } catch { throw new Error("That passphrase didn't open it."); }
+    if (f.remember.checked) LS.set(KEYSTORE, JSON.stringify({ salt: Store.cfg.salt, k: await exportKey(key) }));
+    await openVault(key);
+  } catch (e){
+    err.textContent = e.message || String(e);
+    btn.disabled = false; btn.textContent = 'Unlock';
+  }
+}
+function lock(){
+  LS.del(KEYSTORE); Store.key = null; Store.token = null; Store.data = null; renderUnlock();
+}
+function askWho(){
+  const m = M();
+  openSheet(`<form data-s="who"><h3>Who's using this phone?</h3>
+    <p class="muted">Used to label check-ins, hearts and to-dos. Change it later in Settings.</p>
+    <div class="acts"><button class="btn pb" name="w" value="mom">${esc(m.mom)}</button><button class="btn ghost" name="w" value="dad">${esc(m.dad)}</button></div></form>`);
+}
+
+/* ---------- pregnancy maths ---------- */
+const FRUIT = { 20:'a banana', 21:'a carrot', 22:'a papaya', 23:'a big mango', 24:'an ear of corn', 25:'a cauliflower',
+  26:'a head of lettuce', 27:'a head of broccoli', 28:'a brinjal', 29:'a butternut squash', 30:'a cabbage', 31:'a coconut',
+  32:'a bangkuang', 33:'a pineapple', 34:'a rock melon', 35:'a honeydew', 36:'a pomelo', 37:'a soursop',
+  38:'a small winter melon', 39:'a mini watermelon', 40:'a durian (less spiky, hopefully)', 41:'a watermelon', 42:'a jackfruit. Time to come out' };
+function gest(){
+  const m = M(); if (!m.edd) return null;
+  const left = diffDays(m.edd, today()); const ga = 280 - left;
+  return { ga, w: Math.floor(ga / 7), d: ((ga % 7) + 7) % 7, left };
+}
+const phase = () => M().birth ? 'after' : 'pregnant';
+function ageText(){
+  const n = diffDays(today(), M().birth);
+  if (n < 0) return 'arriving soon';
+  if (n < 14) return plural(n, 'day') + ' old';
+  if (n < 70) return `${Math.floor(n / 7)} weeks ${n % 7 ? plural(n % 7, 'day') : ''} old`.replace(/\s+old/, ' old');
+  return `${Math.floor(n / 30.44)} months old`;
+}
+function ccPlan(){
+  const m = M(), cc = m.cc || {};
+  if (!cc.days) return null;
+  const base = m.birth || m.edd; if (!base) return null;
+  const checkIn = cc.checkIn || addDays(base, 2);
+  return { checkIn, end: addDays(checkIn, cc.days), assumed: !cc.checkIn };
+}
+function keyDates(){
+  const m = M(), out = []; if (!m.edd && !m.birth) return out;
+  if (!m.birth){
+    out.push({ d: addDays(m.edd, -28), t: '36 weeks', s: 'Bags packed, car seat in' });
+    out.push({ d: addDays(m.edd, -21), t: '37 weeks', s: 'Full term' });
+    out.push({ d: m.edd, t: 'Due date', s: `${m.nick} day, in theory` });
+  } else {
+    out.push({ d: m.birth, t: `${m.nick} arrived`, s: '' });
+    out.push({ d: addDays(m.birth, 28), t: 'Shared leave split due', s: 'Submit on LifeSG' });
+    out.push({ d: addDays(m.birth, 42), t: 'Birth registration due', s: 'LifeSG' });
+  }
+  out.push({ d: '2027-02-05', t: 'CNY eve', s: 'Reunion dinner' });
+  out.push({ d: '2027-02-06', t: 'Chinese New Year', s: 'Public holidays 6 to 8 Feb' });
+  const cp = ccPlan();
+  if (cp){
+    out.push({ d: cp.checkIn, t: `${m.cc.name || 'Confinement centre'} check-in`, s: cp.assumed ? 'Assumes discharge 2 days after birth' : '' });
+    out.push({ d: cp.end, t: `${m.cc.name || 'Confinement centre'} check-out`, s: `${m.cc.days} days` });
+  }
+  if (m.nannyStart){
+    let s = '';
+    if (cp){ const g = diffDays(m.nannyStart, cp.end);
+      s = g > 0 ? `${plural(g, 'day')} with no help after check-out` : g < 0 ? `Overlaps the centre by ${plural(-g, 'day')}` : 'Starts the day you check out'; }
+    out.push({ d: m.nannyStart, t: `${m.nannyName || 'Nanny'} starts`, s, warn: !!cp && diffDays(m.nannyStart, cp.end) !== 0 });
+  }
+  return out.filter(x => x.d).sort((a, b) => a.d < b.d ? -1 : a.d > b.d ? 1 : 0);
+}
+function dueOf(t){
+  if (!t.due) return null;
+  const b = /^birth\+(\d+)$/.exec(t.due);
+  if (b) return M().birth ? addDays(M().birth, +b[1]) : null;
+  return t.due;
+}
+function dueLabel(t){
+  const b = /^birth\+(\d+)$/.exec(t.due || ''); const d = dueOf(t);
+  if (!d) return b ? `${b[1]} days after birth` : '';
+  if (t.done) return fmtD(d);
+  const n = diffDays(d, today());
+  if (n < 0) return `${-n}d overdue`; if (n === 0) return 'Today'; if (n === 1) return 'Tomorrow';
+  if (n < 14) return `In ${n} days`; return fmtD(d);
+}
+const isLate = t => !t.done && dueOf(t) && diffDays(dueOf(t), today()) < 0;
+
+/* ---------- static content ---------- */
+const STATUS = [['todo','To get'],['us','US haul'],['later','After birth'],['ordered','Ordered'],['bought','Bought'],['gift','Gift / loan'],['skip','Skip']];
+const STATUS_L = Object.fromEntries(STATUS);
+const SORTED = s => s === 'bought' || s === 'gift' || s === 'ordered';
+const SECTIONS = ['Mama: pregnancy','Mama: after birth','Feeding','On the go','Nursery','Play & development','Bath & health','Other'];
+const MOODS = [[1,'😣','Rough'],[2,'😕','Low'],[3,'😐','Okay'],[4,'🙂','Good'],[5,'😊','Great']];
+const ENERGY = [[1,'🪫','Empty'],[2,'🥱','Low'],[3,'🙂','Okay'],[4,'⚡','Good'],[5,'🔋','Full']];
+const BODY = [[1,'🤕','Ouch'],[2,'😖','Achy'],[3,'😐','Okay'],[4,'🙂','Comfy'],[5,'💪','Great']];
+const SYMPTOMS = {
+  pregnant: { normal: ['Back ache','Heartburn','Nausea','Swelling','Headache','Cramps','Breathless','Itchy','Restless legs'],
+    red: ['Bleeding','Leaking fluid','Blurred vision','Regular contractions','Fever','Severe tummy pain'] },
+  after: { normal: ['Sore down there','Wound pain','Sore nipples','Engorged','Back ache','Constipation','Headache','Night sweats'],
+    red: ['Heavy bleeding','Fever','Blurred vision','Chest pain or breathless','Painful swollen calf','Wound red or oozing'] },
+};
+const FEELINGS = ['Calm','Happy','Excited','Grateful','Anxious','Teary','Irritable','Overwhelmed','Lonely','Numb'];
+const CARE = ['Foot rub','Dinner sorted','Took the night feed','Let her sleep in','Handled admin','Walked the dog','Snack run','Listened, no fixing'];
+const has = (r, t) => (r.tags || []).includes(t);
+function flagsFor(r){
+  const f = [];
+  if (phase() === 'pregnant'){
+    if (r.moving === 'less') f.push('Baby moving less than usual: call the delivery suite now. Don\'t wait until tomorrow.');
+    if (has(r,'Bleeding') || has(r,'Leaking fluid')) f.push('Bleeding or leaking fluid: call the delivery suite now.');
+    if (has(r,'Blurred vision') || (has(r,'Headache') && has(r,'Swelling'))) f.push('Bad headache, blurred vision or sudden swelling can be pre-eclampsia: call the delivery suite today.');
+    if (has(r,'Regular contractions')) f.push((gest()?.w ?? 40) < 37 ? 'Regular contractions before 37 weeks: call the delivery suite.' : 'Regular contractions: time them and call the delivery suite for when to come in.');
+    if (has(r,'Severe tummy pain')) f.push('Severe or constant tummy pain: call the delivery suite now.');
+    if (has(r,'Fever')) f.push('Fever: call the gynae or delivery suite today.');
+  } else {
+    if (has(r,'Heavy bleeding')) f.push('Heavy bleeding (a pad soaked within an hour, or big clots): go to A&E or call 995.');
+    if (has(r,'Chest pain or breathless')) f.push('Chest pain or breathlessness: call 995.');
+    if (has(r,'Painful swollen calf')) f.push('Painful, swollen calf can be a clot: see a doctor today.');
+    if (has(r,'Fever')) f.push('Fever after birth: call the gynae today.');
+    if (has(r,'Blurred vision') || (has(r,'Headache') && r.body <= 2)) f.push('Severe headache or vision changes after birth: call the gynae or delivery suite now.');
+    if (has(r,'Wound red or oozing')) f.push('Red, hot or oozing wound: call the gynae today.');
+  }
+  return f;
+}
+function lowMood(){
+  const since = addDays(today(), -14);
+  const recent = live('checkins').filter(c => c.date >= since && c.mood);
+  if (recent.length < 4) return false;
+  const avg = sum(recent, c => c.mood) / recent.length;
+  const lowDays = new Set(recent.filter(c => c.mood <= 2).map(c => c.date)).size;
+  return avg <= 2.4 || lowDays >= 5;
+}
+
+/* ---------- drawing ---------- */
+function peanutSVG(size = 120, wiggle = false, face = true){
+  return `<svg width="${size}" height="${size * 1.25}" viewBox="0 0 100 125" aria-hidden="true" class="${wiggle ? 'wiggle' : ''}" style="max-width:100%">
+    <defs><pattern id="pn-dots" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(18)">
+      <circle cx="2.5" cy="2.5" r="1.25" fill="var(--shell-dot)" opacity=".55"/></pattern>
+      <clipPath id="pn-clip"><path d="${PEANUT_PATH}"/></clipPath></defs>
+    <path d="M52 8 c-1-5 3-7 6-6" stroke="var(--shell-dot)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="${PEANUT_PATH}" fill="var(--shell)"/>
+    <rect width="100" height="125" fill="url(#pn-dots)" clip-path="url(#pn-clip)"/>
+    <path d="M30 63 Q50 70 70 63" stroke="var(--shell-dot)" stroke-width="2" fill="none" opacity=".6" stroke-linecap="round"/>
+    ${face ? `<ellipse cx="40" cy="88" rx="3.2" ry="4" fill="#3A2A22"/><ellipse cx="60" cy="88" rx="3.2" ry="4" fill="#3A2A22"/>
+    <circle cx="41.2" cy="86.6" r="1.1" fill="#fff"/><circle cx="61.2" cy="86.6" r="1.1" fill="#fff"/>
+    <path d="M45 96 Q50 100.5 55 96" stroke="#3A2A22" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="31" cy="96" rx="5" ry="3" fill="#F08FA8" opacity=".7"/><ellipse cx="69" cy="96" rx="5" ry="3" fill="#F08FA8" opacity=".7"/>` : ''}
+  </svg>`;
+}
+const PEANUT_PATH = 'M50 9 C69 9 80 22 79 39 C78 50 71 56 71 63 C71 70 84 77 84 94 C84 112 69 123 50 123 C31 123 16 112 16 94 C16 77 29 70 29 63 C29 56 22 50 21 39 C20 22 31 9 50 9 Z';
+function ringPeanut(frac){
+  const r = 68, c = 2 * Math.PI * r, f = Math.max(0, Math.min(1, frac));
+  const a = -Math.PI / 2 + f * 2 * Math.PI, ex = 75 + r * Math.cos(a), ey = 75 + r * Math.sin(a);
+  return `<div class="peanut-wrap" role="img" aria-label="${Math.round(f * 100)}% of the way to the due date">
+    <svg viewBox="0 0 150 150" width="100%" height="100%" style="position:absolute;inset:0">
+      <circle cx="75" cy="75" r="${r}" fill="none" stroke="var(--surface2)" stroke-width="7"/>
+      <circle cx="75" cy="75" r="${r}" fill="none" stroke="var(--pb)" stroke-width="7" stroke-linecap="round"
+        stroke-dasharray="${(c * f).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 75 75)"/>
+      <circle cx="${ex.toFixed(1)}" cy="${ey.toFixed(1)}" r="7" fill="var(--jelly)" stroke="var(--bg)" stroke-width="3"/>
+    </svg>
+    <div style="position:absolute;inset:22px 34px;display:grid;place-items:center">${peanutSVG(82, true)}</div></div>`;
+}
+const ICONS = {
+  home: '<path d="M4 11 12 4l8 7v9h-6v-6h-4v6H4z"/>',
+  kloe: '<path d="M12 20c-6-4-9-7.5-9-11a4.5 4.5 0 0 1 9-2 4.5 4.5 0 0 1 9 2c0 3.5-3 7-9 11z"/>',
+  gear: '<rect x="4" y="8" width="16" height="12" rx="3"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
+  plan: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  money: '<circle cx="12" cy="12" r="8.5"/><path d="M14.6 9.4c-.5-.9-1.5-1.3-2.6-1.3-1.4 0-2.5.7-2.5 1.8 0 2.6 5.2 1.4 5.2 4.1 0 1.1-1.2 1.9-2.7 1.9-1.2 0-2.2-.5-2.7-1.4M12 6.5v1.6M12 15.9v1.6"/>',
+  baby: '<path d="M9.5 3h5M10.5 3v2.5L8.5 8.5V19a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2V8.5l-2-3V3"/><path d="M8.5 12.5h7"/>',
+  more: '<circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/>',
+};
+const icon = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[k]}</svg>`;
+
+/* ---------- app shell ---------- */
+function renderApp(){
+  if (!Store.data) return;
+  const m = M();
+  if (Store.ui.tab === 'money'){ Store.ui.tab = 'more'; Store.ui.more = 'money'; }
+  if (Store.ui.tab === 'home') deliverJar();
+  const tabs = [['home','Home'],['kloe', m.mom || 'Mama'],['baby','Baby'],['plan','Plan'],['gear','Gear'],['more','More']];
+  const hr = new Date().getHours(), g = gest();
+  const greet = (hr < 5 ? 'Up late' : hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening') + (me() ? ', ' + nameOf(me()) : '');
+  const foot = m.birth ? `<b>${esc(ageText())}</b><span>Born ${esc(fmtDW(m.birth))}</span>` : g ? `<b>${g.left > 0 ? plural(g.left, 'sleep') + ' to go' : 'Any day now'}</b><span>Due ${esc(fmtDW(m.edd))}</span>` : '';
+  $('#app').innerHTML = `
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">${peanutSVG(22, false, false)}<span>${esc(m.nick || 'Peanut')}</span></div>
+      <div class="greet"><b>${esc(greet)}</b><span>${esc(fmtDW(today()))}</span></div>
+      <span class="grow"></span>
+      <button class="sync" id="sync" data-a="syncinfo" data-s="${Store.status}"><i></i><span>${statusText()}</span></button>
+    </header>
+    <main id="main">${VIEWS[Store.ui.tab] ? VIEWS[Store.ui.tab]() : ''}</main>
+  </div>
+  <nav class="tabs" aria-label="Sections"><div class="side-brand">${peanutSVG(30, false, true)}<span>${esc(m.nick || 'Peanut')}</span></div><div class="in">
+    ${tabs.map(([k, l]) => `<button data-a="tab" data-v="${k}" ${k === Store.ui.tab ? 'aria-current="page"' : ''}>${icon(k)}<span>${esc(l)}</span></button>`).join('')}
+  </div>${foot ? `<div class="side-foot">${foot}</div>` : ''}</nav>`;
+  if (Store.ui.tab === 'kloe') bindChart();
+  if (Store.ui.tab === 'home') hugCheck();
+}
+function renderSafe(){
+  const a = document.activeElement;
+  const typing = a && /INPUT|TEXTAREA|SELECT/.test(a.tagName) && $('#app').contains(a) && !a.matches('[type=checkbox],[type=radio]');
+  if (typing || $('#sheet').open){ Store.needsRender = true; return; }
+  renderApp();
+}
+document.addEventListener('focusout', () => setTimeout(() => { if (Store.needsRender){ Store.needsRender = false; renderSafe(); } }, 50));
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 2200);
+}
+function openSheet(html){ const s = $('#sheet'); s.innerHTML = html; s.showModal(); }
+function closeSheet(){ const s = $('#sheet'); if (s.open) s.close(); }
+$('#sheet').addEventListener('close', () => { if (Store.needsRender){ Store.needsRender = false; renderSafe(); } });
+$('#sheet').addEventListener('click', e => { if (e.target === e.currentTarget) closeSheet(); });
+
+/* ---------- views ---------- */
+const VIEWS = {};
+
+/* ---------- daily notes (Peanut's voice) ---------- */
+const NOTES = {
+  pregnant: [
+    "Morning, Mama. I'm growing fingernails today. You're growing a whole person. You're winning.",
+    "Drink some water for both of us? I hear it's good stuff.",
+    "Put your feet up for ten minutes. Peanut's orders.",
+    "I heard your voice yesterday. It's my favourite sound so far.",
+    "You don't have to have everything ready. I don't need much. Mostly you.",
+    "If today feels heavy, that's allowed. I'm getting heavy too. We're in this together.",
+    "I can hear your heartbeat all day long. It's very calming. Thank you.",
+    "Have the snack. I vote yes.",
+    "It's okay to say no to things today. Save your energy for naps. And me.",
+    "I've started practising breathing. You can practise too. Slow in, slow out.",
+    "Papa's been talking to me lately. He's a little nervous. Don't tell him I told you.",
+    "Your back hurts because I'm getting big. Sorry! Ask Papa for a rub. He owes me one.",
+    "I can't wait to see your face. I bet it's lovely.",
+    "Little reminder: you're doing a really good job, even on the lazy days. Especially on the lazy days.",
+    "I like it when you sing. Even the bits where you don't know the words.",
+    "Wear the comfy thing today.",
+    "Nap if you can. I've been napping all day and I highly recommend it.",
+    "Some days I'm wiggly, some days I'm sleepy. You're allowed both kinds of days too.",
+    "Excited and scared at the same time? Me too. Mostly excited.",
+    "Ask for help with one thing today. Even a small thing. People like helping you.",
+    "I already know your voice better than anyone's.",
+    "Go outside for a bit if you can. I hear the world is nice. Bring snacks.",
+    "You're building my lungs right now. While watching TV. Multitasking queen.",
+    "Breathe out. Shoulders down. There you go.",
+    "You don't have to love every minute of this. I'm still very glad it's you.",
+    "Today's plan: be gentle with yourself. That's it. That's the whole plan.",
+    "Kick count: lots. Love count: more.",
+    "You're my favourite person and we haven't even met yet.",
+    "Tired means you're building a baby. Resting counts as work.",
+    "It's getting a bit squished in here. We'll both get our space back soon.",
+    "You picked such a good Papa for me. Remind him I said that.",
+    "Thank you for the cold water earlier. I felt that. Rude, but thank you.",
+    "Eat something you really love today. I'll taste a little bit of it too.",
+    "Lie down, hand on the bump. That's me saying hi back.",
+    "Whatever you got done today is enough.",
+    "Every wobble, every waddle: worth it. I promise to be cute.",
+  ],
+  near: [
+    "I'm nearly ready. You're more ready than you think.",
+    "No rush. I'll come when I come. Rest while you can.",
+    "Whatever happens on the day, you've already done the hardest part: keeping me safe all this time.",
+    "Bags packed or not, I just need you.",
+    "Tired of waiting? So is everyone. Except me. I'm very comfortable.",
+    "Today's job: feet up, and let people bring you things.",
+    "You're going to meet me soon. I'll be the small, loud one.",
+    "It's okay to feel nervous. Brave people feel nervous all the time.",
+    "Eat something nice today. I'll be taking up a lot of your time soon.",
+    "Papa has the phone numbers. You have the hard part. I have the easy part. Teamwork.",
+    "Take a long shower. The last few quiet ones for a while.",
+    "However I arrive, it'll be the right way.",
+    "Ask Papa for a slow dance in the kitchen. Practice for rocking me later.",
+    "One more sleep closer.",
+    "I've heard you'll cry when you see me. I'll cry too. It's a family thing.",
+    "Not long now. Thank you for every single day of this.",
+    "You're ready because you're you.",
+    "Soon you get to hold me. I've been practising being held, by you, from the inside.",
+    "Do one thing just for you today. Nails, a film, a long nap. Your pick.",
+    "When it starts, breathe, and know I'm working hard on my side too.",
+  ],
+  after: [
+    "Hello, Mama. It's me, out here. Thank you for everything so far.",
+    "Good morning. Sorry about last night. I'm new at this too.",
+    "You fed me, held me and changed me. That's a full-time job and you're doing it.",
+    "However I'm fed, I'm full and I'm loved. That's what counts.",
+    "Sleep when I sleep. Everyone says it because it's true.",
+    "Let someone else hold me for an hour. Go do something just for you.",
+    "Your body did something huge. Be kind to it this week.",
+    "Crying today? Very normal. I do it all the time.",
+    "The days are long and blurry right now. They get clearer. I'll get easier.",
+    "I like your smell best of everyone.",
+    "You're the only mum I want. Messy hair and all.",
+    "Drink water. Eat the soup. Let people fuss over you.",
+    "When I stare at you, it's because you're my favourite thing to look at.",
+    "If the blues hang around for more than two weeks, tell Papa or the doctor. You matter as much as I do.",
+    "Visitors can wait. You and I are having a quiet day.",
+    "Small wins count. You showered. I burped. Celebrate.",
+    "Leave the messy house. I'd rather be held.",
+    "Every time you pick me up, I calm down a little. That's your superpower.",
+    "One feed at a time. One day at a time. We'll figure it out.",
+    "You're learning me and I'm learning you. We're both doing great.",
+    "Today, say yes to every offer of help. Every single one.",
+    "My hands are tiny, but they already know how to hold your finger.",
+    "Hard day? Tomorrow I'll probably be cute again.",
+    "Thank you for the 3am cuddles. I know they're not your favourite. They're mine.",
+    "Your arms are my favourite place. Second favourite: also your arms.",
+    "Papa wants to do a night feed? Let him. Practice makes Papa.",
+    "I'm growing so fast because you're looking after me so well.",
+    "Nap time is for you too.",
+    "Look how far we've come since day one.",
+    "You still count. As my mum, and as you.",
+    "This week's big skill: staring at the ceiling fan. Very impressive, I know.",
+    "In case no one's said it today: you're doing really well.",
+    "Our first weeks together are messy and lovely. Mostly lovely.",
+    "Go outside for five minutes. Fresh air for you, a quiet minute for everyone.",
+    "Ask for what you need. Out loud. People can't guess.",
+    "I'm still getting used to the world. You're still getting used to being my mum. No rush on either.",
+  ],
+};
+const NUDGES = {
+  pregnant: [
+    "Psst, Papa. Ten-minute foot rub tonight. No need to be asked.",
+    "Psst, Papa. Take over dinner tonight, washing up included.",
+    "Psst, Papa. Ask Mama \"how are you, really?\" and just listen. No fixing.",
+    "Psst, Papa. Tell Mama one specific thing she's doing well.",
+    "Psst, Papa. Bring her a cold drink before she asks.",
+    "Psst, Papa. Phone away at dinner tonight. All of it.",
+    "Psst, Papa. Plan a small date this week, before I take over your weekends.",
+    "Psst, Papa. Read me a story tonight. I'm listening, I promise.",
+    "Psst, Papa. Finish one thing on the to-do list today without being reminded.",
+    "Psst, Papa. Back rub for Mama. She carries me around all day.",
+    "Psst, Papa. Ask Mama what's worrying her about the birth. Then just listen.",
+    "Psst, Papa. Pick up her favourite snack on the way home.",
+    "Psst, Papa. Say thank you to Mama. For me, for her, for all of it.",
+    "Psst, Papa. Leave work on time today. Mama would like that, and so would I.",
+    "Psst, Papa. Walk the dog today so Mama can rest.",
+    "Psst, Papa. Take a nice photo of Mama today. She'll want them later.",
+    "Psst, Papa. Run her a warm shower and put out a fresh towel.",
+    "Psst, Papa. Ask if she'd like you at the next check-up.",
+    "Psst, Papa. Tell Mama she looks beautiful. Mean it. She does.",
+    "Psst, Papa. Fresh sheets on the bed tonight.",
+    "Psst, Papa. Write Mama a note for the jar in Peanut.",
+    "Psst, Papa. Do the grocery run today. All of it.",
+    "Psst, Papa. Ask what she'd like our first week home to look like.",
+    "Psst, Papa. Drive the route to the hospital once. Then once more at night.",
+    "Psst, Papa. Give her a hug that lasts longer than ten seconds.",
+    "Psst, Papa. Tidy the corner of the house she keeps looking at.",
+    "Psst, Papa. Ask what she misses doing. Then help her do it.",
+    "Psst, Papa. Make sure work knows exactly when you're going on leave.",
+    "Psst, Papa. Ten minutes of no screens, just the two of you, before bed.",
+    "Psst, Papa. Ask Mama what she'd like to eat this week, then make it happen.",
+  ],
+  near: [
+    "Psst, Papa. Fuel the car and park the hospital bag by the door.",
+    "Psst, Papa. Phone charged, delivery suite number saved. Tell Mama it's done.",
+    "Psst, Papa. Draft your out-of-office now so you only need to switch it on.",
+    "Psst, Papa. Keep tonight free. Probably not tonight. But maybe.",
+    "Psst, Papa. Ask Mama if she wants anything changed in the birth plan.",
+    "Psst, Papa. Put your charger and some snacks in the hospital bag too.",
+    "Psst, Papa. Check the car seat one more time. Click, click.",
+  ],
+  after: [
+    "Psst, Papa. Take a night feed tonight so Mama gets a long stretch of sleep.",
+    "Psst, Papa. Every time Mama sits down to feed me, bring water and a snack.",
+    "Psst, Papa. You're in charge of visitors today. Saying no included.",
+    "Psst, Papa. One load of laundry, start to finish.",
+    "Psst, Papa. Change the next three diapers before anyone asks.",
+    "Psst, Papa. Tell Mama she's a good mum, with a real example.",
+    "Psst, Papa. Ask Mama how her mood has been this week. Really ask.",
+    "Psst, Papa. Skin-to-skin time with me. Mama gets a break, I get a cuddle.",
+    "Psst, Papa. Wash the bottles and pump parts tonight.",
+    "Psst, Papa. Bring Mama her favourite food from outside.",
+    "Psst, Papa. Phone away when you're with us.",
+    "Psst, Papa. Ask Mama if anything hurts. Help her get it checked if it does.",
+    "Psst, Papa. Give Mama an hour completely off. Different room, door closed.",
+    "Psst, Papa. Bath time tonight is yours.",
+    "Psst, Papa. Write down one funny thing I did today. Mama will love it.",
+    "Psst, Papa. Take a photo of Mama holding me. She's never in the photos.",
+    "Psst, Papa. Say thank you to whoever's helping us today.",
+    "Psst, Papa. Ask Mama what would make tomorrow easier.",
+    "Psst, Papa. Sort one piece of paperwork today: birth registration, leave, or claims.",
+    "Psst, Papa. Sit with Mama during the 3am feed, even if you can't do the feeding.",
+    "Psst, Papa. If Mama's been low for two weeks or more, suggest calling the doctor together.",
+    "Psst, Papa. Long hug. You're both tired. Hugs help.",
+    "Psst, Papa. Tidy up before Mama wakes up.",
+    "Psst, Papa. Take me out for a short walk so Mama can nap.",
+    "Psst, Papa. Write Mama a note for the jar in Peanut.",
+  ],
+};
+const FRUITS = { 20:['🍌','a banana'], 21:['🥕','a carrot'], 22:['🌽','an ear of corn'], 23:['🥭','a big mango'], 24:['🥦','a head of broccoli'],
+  25:['🥬','a head of lettuce'], 26:['🥒','a big cucumber'], 27:['🥦','a cauliflower'], 28:['🍠','a big sweet potato'], 29:['🍐','a butternut squash'],
+  30:['🥬','a cabbage'], 31:['🥥','a coconut'], 32:['🥔','a bangkuang'], 33:['🍍','a pineapple'], 34:['🍈','a rock melon'], 35:['🍈','a honeydew'],
+  36:['🥬','a head of romaine'], 37:['🍊','a big pomelo'], 38:['🍈','a small winter melon'], 39:['🍉','a mini watermelon'], 40:['🍉','a watermelon'],
+  41:['🍉','a big watermelon'], 42:['🥜','a peanut who is ready to come out'] };
+const fruitOf = w => FRUITS[Math.min(42, w)] || ['🥜', 'a little peanut'];
+const dayNum = s => Math.round(parseD(s).getTime() / DAY);
+const pickFrom = (list, i) => list[((i % list.length) + list.length) % list.length];
+function notePhase(d){
+  const m = M();
+  if (m.birth && d >= m.birth) return ['after', diffDays(d, m.birth)];
+  if (m.edd && d >= addDays(m.edd, -21)) return ['near', diffDays(d, addDays(m.edd, -21))];
+  return ['pregnant', dayNum(d)];
+}
+function noteFor(d){ const [p, i] = notePhase(d); return pickFrom(NOTES[p], i); }
+function nudgeFor(d){ const [p, i] = notePhase(d); return pickFrom(p === 'near' ? NUDGES.near.concat(NUDGES.pregnant) : NUDGES[p], i); }
+const otherRole = r => r === 'mom' ? 'dad' : 'mom';
+function waLink(text){
+  const d = String(M().momPhone || '').replace(/\D/g, ''), num = d.length === 8 ? '65' + d : d;
+  return `https://wa.me/${num}?text=${encodeURIComponent(text + '\n\nLove, Peanut 🥜')}`;
+}
+
+/* ---------- notes jar and hugs ---------- */
+function jarToday(){
+  const role = me(); if (!role) return null;
+  return live('jar').filter(n => n.by === otherRole(role) && n.shownOn === today()).sort((a, b) => (a.created || 0) - (b.created || 0))[0] || null;
+}
+function deliverJar(){
+  const role = me(); if (!role || !Store.data || jarToday()) return;
+  const next = live('jar').filter(n => n.by === otherRole(role) && !n.shownOn).sort((a, b) => (a.created || 0) - (b.created || 0))[0];
+  if (next) patch('jar', next.id, { shownOn: today() });
+}
+const hugsToday = by => live('hugs').filter(h => h.date === today() && h.by === by).length;
+function burst(el, n = 7){
+  if (!el || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const r = el.getBoundingClientRect();
+  for (let i = 0; i < n; i++){
+    const s = document.createElement('span'); s.className = 'heartfx'; s.textContent = ['💕','💗','💖','🩷'][i % 4];
+    s.style.left = (r.left + r.width / 2 - 10 + (Math.random() * 40 - 20)) + 'px'; s.style.top = (r.top - 6) + 'px';
+    s.style.setProperty('--dx', (Math.random() * 80 - 40).toFixed(0) + 'px'); s.style.animationDelay = (i * 60) + 'ms';
+    document.body.appendChild(s); setTimeout(() => s.remove(), 1500);
+  }
+}
+
+/* ---------- calendar reminders ---------- */
+function icsEsc(s){ return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); }
+function icsFold(line){
+  const out = []; let cur = '', bytes = 0;
+  for (const ch of line){ const b = enc.encode(ch).length; if (bytes + b > 74){ out.push(cur); cur = ' ' + ch; bytes = 1 + b; } else { cur += ch; bytes += b; } }
+  out.push(cur); return out.join('\r\n');
+}
+function buildICS(role, time, days){
+  const [hh, mm] = (time || '09:00').split(':');
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Peanut//Daily notes//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:Peanut'];
+  for (let i = 0; i < days; i++){
+    const d = addDays(today(), i), txt = role === 'mom' ? noteFor(d) : nudgeFor(d);
+    L.push('BEGIN:VEVENT', `UID:peanut-${role}-${d}@peanut`, `DTSTAMP:${stamp}`, `DTSTART:${d.replace(/-/g, '')}T${pad(+hh)}${pad(+mm)}00`, 'DURATION:PT10M',
+      icsFold('SUMMARY:' + icsEsc('🥜 ' + txt)), icsFold('DESCRIPTION:' + icsEsc(txt + '\n\nLove, Peanut')), 'TRANSP:TRANSPARENT',
+      'BEGIN:VALARM', 'ACTION:DISPLAY', icsFold('DESCRIPTION:' + icsEsc(txt)), 'TRIGGER:PT0M', 'END:VALARM', 'END:VEVENT');
+  }
+  L.push('END:VCALENDAR');
+  return L.join('\r\n') + '\r\n';
+}
+function download(text, name, type){
+  const blob = new Blob([text], { type });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+const icsInfo = () => { try { return JSON.parse(LS.get('peanut.ics') || 'null'); } catch { return null; } };
+
+/* ---------- baby tracker ---------- */
+const byAtDesc = (a, b) => a.at < b.at ? 1 : -1;
+const logs = t => live('log').filter(l => !t || l.type === t);
+const runningOf = t => logs(t).filter(l => !l.end).sort(byAtDesc)[0];
+const tOf = iso => new Date(iso).toLocaleTimeString('en-SG', { hour: 'numeric', minute: '2-digit' });
+const dayOf = iso => ymd(new Date(iso));
+const isoNow = () => new Date().toISOString();
+function fmtDur(ms){ const mi = Math.max(0, Math.round(ms / 60000)); return mi < 60 ? mi + 'm' : Math.floor(mi / 60) + 'h ' + pad(mi % 60) + 'm'; }
+function fmtClock(ms){ const s = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(s / 3600), mi = Math.floor(s % 3600 / 60), se = s % 60; return (h ? h + ':' + pad(mi) : mi) + ':' + pad(se); }
+function agoText(iso){ const ms = now() - Date.parse(iso); return ms < 60000 ? 'just now' : fmtDur(ms) + ' ago'; }
+function toLocalInput(iso){ if (!iso) return ''; const d = new Date(iso); return `${ymd(d)}T${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+const SIDE = { L: 'left', R: 'right', B: 'both sides' };
+function logLabel(l){
+  const dur = l.end ? Date.parse(l.end) - Date.parse(l.at) : 0;
+  switch (l.type){
+    case 'feed': return l.kind === 'bottle' ? `Bottle${l.ml ? ', ' + l.ml + ' ml' : ''}${l.milk === 'formula' ? ' formula' : l.milk ? ' breast milk' : ''}` : `Breast, ${SIDE[l.side] || ''}${l.end ? ', ' + fmtDur(dur) : ' (feeding now)'}`;
+    case 'diaper': return ({ wet: 'Wet diaper', dirty: 'Poo', both: 'Wet and poo' })[l.diaper] || 'Diaper';
+    case 'sleep': return l.end ? `Slept ${fmtDur(dur)}` : 'Asleep now';
+    case 'pump': return `Pumped${l.ml ? ' ' + l.ml + ' ml' : ''}`;
+    case 'growth': return [l.kg ? l.kg + ' kg' : '', l.cm ? l.cm + ' cm long' : '', l.head ? 'head ' + l.head + ' cm' : ''].filter(Boolean).join(', ') || 'Growth';
+    case 'temp': return `Temperature ${l.c}°C`;
+    case 'contraction': return l.end ? `Contraction, ${Math.round(dur / 1000)}s` : 'Contraction now';
+    default: return l.note || 'Note';
+  }
+}
+function logIcon(l){
+  if (l.type === 'feed') return l.kind === 'bottle' ? '🍼' : '🤱';
+  if (l.type === 'diaper') return l.diaper === 'wet' ? '💧' : '💩';
+  return ({ sleep: '😴', pump: '🥛', growth: '⚖️', temp: '🌡️', note: '📝', contraction: '🌊' })[l.type] || '•';
+}
+function feedSessions(list){
+  let n = 0, lastEnd = 0;
+  for (const l of list){ const s = Date.parse(l.at); if (!n || s - lastEnd > 20 * 60000) n++; lastEnd = Math.max(lastEnd, Date.parse(l.end || isoNow())); }
+  return n;
+}
+function dayStats(d){
+  const L = live('log').filter(l => dayOf(l.at) === d);
+  const feeds = L.filter(l => l.type === 'feed').sort((a, b) => a.at < b.at ? -1 : 1);
+  return { feeds: feedSessions(feeds), ml: sum(feeds.filter(f => f.kind === 'bottle'), f => f.ml),
+    wet: L.filter(l => l.type === 'diaper' && l.diaper !== 'dirty').length, dirty: L.filter(l => l.type === 'diaper' && l.diaper !== 'wet').length,
+    sleep: sum(L.filter(l => l.type === 'sleep'), l => Date.parse(l.end || isoNow()) - Date.parse(l.at)) };
+}
+function nextSide(){ const b = logs('feed').filter(l => l.kind === 'breast' && (l.side === 'L' || l.side === 'R')).sort(byAtDesc)[0]; return b ? (b.side === 'L' ? 'R' : 'L') : 'L'; }
+const lastFeedRec = () => logs('feed').sort(byAtDesc)[0];
+function babyAlerts(){
+  const out = [], m = M(), ageD = m.birth ? diffDays(today(), m.birth) : null;
+  const t = logs('temp').filter(l => now() - Date.parse(l.at) < 12 * 3600000).sort(byAtDesc)[0];
+  if (t && +t.c >= 38) out.push(ageD === null || ageD < 90
+    ? `${t.c}°C in a baby under 3 months: go to the children's emergency department now. KKH's is open 24 hours.`
+    : `${t.c}°C: call the doctor today. Go to A&E if the baby is floppy, hard to wake or not feeding.`);
+  if (ageD !== null && ageD >= 5){
+    const first = logs('diaper').sort((a, b) => a.at < b.at ? -1 : 1)[0];
+    if (first && now() - Date.parse(first.at) > 24 * 3600000){
+      const wet = logs('diaper').filter(l => l.diaper !== 'dirty' && now() - Date.parse(l.at) < 24 * 3600000).length;
+      if (wet < 6) out.push({ soft: `Only ${plural(wet, 'wet diaper')} logged in the last 24 hours. From day 5 you'd expect 6 or more. If that's the real number and not a logging gap, call the doctor.` });
+    }
+  }
+  return out;
+}
+function runningCards(noCtr){
+  const f = runningOf('feed'), s = runningOf('sleep'), c = noCtr ? null : runningOf('contraction'), out = [];
+  const card = (ic, title, since, acts) => `<div class="live"><span class="live-ic">${ic}</span><div class="main"><div class="t">${title}</div><div class="clock" data-since="${since}">${fmtClock(now() - Date.parse(since))}</div></div><div class="live-acts">${acts}</div></div>`;
+  if (f) out.push(card('🤱', `Feeding on the ${SIDE[f.side] || ''}`, f.at, `<button class="btn sm ghost" data-a="bswitch" data-id="${f.id}">Switch side</button><button class="btn sm pb" data-a="bstop" data-id="${f.id}">Stop</button>`));
+  if (s) out.push(card('😴', 'Sleeping', s.at, `<button class="btn sm pb" data-a="bstop" data-id="${s.id}">Woke up</button>`));
+  if (c) out.push(card('🌊', 'Contraction', c.at, `<button class="btn sm jelly" data-a="ctr">It stopped</button>`));
+  return out.join('');
+}
+function logRow(l){
+  return `<div class="row"><span class="lic" aria-hidden="true">${logIcon(l)}</span><button class="tap main" data-a="bedit" data-id="${l.id}"><div class="t">${esc(logLabel(l))}</div>
+    <div class="s">${esc(tOf(l.at))}${l.by ? ', ' + esc(nameOf(l.by)) : ''}${l.note && l.type !== 'note' ? '. ' + esc(l.note) : ''}</div></button></div>`;
+}
+function contractionsView(){
+  const run = runningOf('contraction'), list = logs('contraction').filter(l => l.end).sort(byAtDesc);
+  const hour = list.filter(l => now() - Date.parse(l.at) < 3600000), asc = [...hour].reverse();
+  const durs = hour.map(l => (Date.parse(l.end) - Date.parse(l.at)) / 1000);
+  const gaps = asc.slice(1).map((l, i) => (Date.parse(l.at) - Date.parse(asc[i].at)) / 60000);
+  const avgD = durs.length ? Math.round(durs.reduce((a, b) => a + b, 0) / durs.length) : null;
+  const avgG = gaps.length ? gaps.reduce((a, b) => a + b, 0) / gaps.length : null;
+  const span = asc.length ? (now() - Date.parse(asc[0].at)) / 60000 : 0;
+  const five11 = hour.length >= 6 && avgG !== null && avgG <= 5.5 && avgD >= 50 && span >= 50;
+  const m = M();
+  return `<h1>Contractions</h1>
+  <div class="panel pad">
+    <button class="btn block bigbtn ${run ? 'jelly' : 'pb'}" data-a="ctr">${run ? `It stopped <span class="clock-in" data-since="${run.at}">${fmtClock(now() - Date.parse(run.at))}</span>` : 'Contraction started'}</button>
+    ${hour.length ? `<div class="tiles" style="margin-top:14px">${tile(hour.length, 'Last hour')}${tile(avgD + 's', 'Avg length')}${tile(avgG !== null ? avgG.toFixed(1) + 'm' : '–', 'Avg gap')}</div>` : ''}
+    ${five11 ? `<div class="alert"><span class="ic">!</span><div>That's about 5 minutes apart, a minute long, for an hour. Call the delivery suite.${m.deliveryPhone ? ` <a href="tel:${esc(m.deliveryPhone)}">Call now</a>` : ''}</div></div>` : ''}
+    ${list.slice(0, 8).map((l, i) => { const prev = list[i + 1]; return `<div class="row"><div class="main"><div class="t">${esc(tOf(l.at))}</div></div><span class="tag">${Math.round((Date.parse(l.end) - Date.parse(l.at)) / 1000)}s long</span>${prev ? `<span class="tag">${((Date.parse(l.at) - Date.parse(prev.at)) / 60000).toFixed(1)} min gap</span>` : ''}<button class="x-btn" data-a="bdel" data-id="${l.id}" aria-label="Delete">×</button></div>`; }).join('')}
+    <p class="small muted">A common rule for first babies: head in when contractions come about every 5 minutes, last about a minute, for an hour. Your hospital's advice comes first. Waters breaking, bleeding or less movement: call now.</p>
+    ${list.length ? '<button class="btn ghost sm" data-a="ctrclear">Clear contractions</button>' : ''}
+  </div>`;
+}
+VIEWS.baby = () => {
+  const m = M(), born = !!m.birth, sleeping = !!runningOf('sleep'), ns = nextSide();
+  const al = babyAlerts(), s = dayStats(today()), lf = lastFeedRec();
+  const L = live('log').filter(l => l.type !== 'contraction').sort(byAtDesc);
+  const days = [...new Set(L.map(l => dayOf(l.at)))].slice(0, 2);
+  const week = [...Array(7)].map((_, i) => addDays(today(), -i));
+  const growth = logs('growth').sort(byAtDesc);
+  const QB = [['L','🤱','Left'],['R','🤱','Right'],['bottle','🍼','Bottle'],['wet','💧','Wet'],['dirty','💩','Poo'],['both','🧷','Both'],['sleep','😴', sleeping ? 'Woke up' : 'Sleep'],['more','➕','More']];
+  const g = gest(), ctrTop = !born && ((g && g.w >= 36) || logs('contraction').length || Store.ui.ctr);
+  return `
+  ${ctrTop ? contractionsView() : ''}
+  <h1>${born ? esc(m.nick) + "'s day" : 'Baby log'}</h1>
+  ${born ? '' : `<p class="muted">Ready for day one. It all works now, so have a practice.${L.length ? ' <button class="btn ghost sm" data-a="bclear">Clear practice entries</button>' : ''}</p>`}
+  ${al.map(a => typeof a === 'string' ? `<div class="alert"><span class="ic">!</span><div>${esc(a)}</div></div>` : `<div class="soft sky">${esc(a.soft)}</div>`).join('')}
+  ${runningCards(true)}
+  <div class="dash"><div class="col">
+  <div class="panel pad">
+    <div class="since2"><div><span class="small muted">Last feed</span><b ${lf ? `data-ago="${lf.at}"` : ''}>${lf ? agoText(lf.at) : 'None yet'}</b>${lf ? `<span class="small muted">${esc(logLabel(lf))}</span>` : ''}</div>
+      <div><span class="small muted">Next side</span><b>${ns === 'L' ? 'Left' : 'Right'}</b></div></div>
+    <div class="tiles">${tile(s.feeds, 'Feeds')}${tile(s.wet, 'Wet')}${tile(s.dirty, 'Poo')}${tile(s.sleep ? fmtDur(s.sleep) : '0', 'Sleep')}</div>
+    ${s.ml ? `<p class="small muted" style="margin:8px 0 0">${s.ml} ml from bottles today.</p>` : ''}
+  </div>
+  <div class="qgrid">${QB.map(([k, e, l]) => `<button class="qb ${k === ns ? 'hint' : ''} ${k === 'sleep' && sleeping ? 'on' : ''}" data-a="b" data-v="${k}"><em>${e}</em><span>${l}</span></button>`).join('')}</div>
+  <p class="small muted" style="text-align:center;margin:6px 0 0">Left and Right start a timer. Tap a log entry to fix the time.</p>
+  </div><div class="col">
+  ${days.length ? days.map(d => `<h2>${d === today() ? 'Today' : esc(fmtDW(d))}</h2><div class="panel">${L.filter(l => dayOf(l.at) === d).map(logRow).join('')}</div>`).join('') : '<h2>Today</h2><div class="panel"><div class="empty">Nothing logged yet. Tap a button above.</div></div>'}
+  ${L.length ? `<h2>Last 7 days</h2><div class="panel pad"><table class="tbl"><thead><tr><th>Day</th><th>Feeds</th><th>Wet</th><th>Poo</th><th>Sleep</th></tr></thead><tbody>
+    ${week.map(d => { const x = dayStats(d); return `<tr><td>${d === today() ? 'Today' : esc(fmtD(d))}</td><td>${x.feeds}</td><td>${x.wet}</td><td>${x.dirty}</td><td>${x.sleep ? fmtDur(x.sleep) : ''}</td></tr>`; }).join('')}</tbody></table></div>` : ''}
+  ${growth.length ? `<h2>Growth</h2><div class="panel">${growth.slice(0, 6).map(logRow).join('')}</div>` : ''}
+  </div></div>
+  ${!born && !ctrTop ? `<h2>Contraction timer</h2><div class="panel pad"><p style="margin-top:0">Moves to the top of this page from 36 weeks.</p><button class="btn ghost sm" data-a="ui" data-k="ctr" data-v="1">Show it now</button></div>` : ''}`;
+};
+function openLogSheet(type, kind, id, preset){
+  const base = { type, kind, at: isoNow(), side: nextSide(), milk: 'breastmilk', diaper: 'wet', ...(preset || {}) };
+  const r = id ? D().log.find(x => x.id === id) : base, T = r.type, K = r.kind;
+  const dt = (n, l, v) => `<label class="f"><span>${l}</span><input type="datetime-local" name="${n}" value="${toLocalInput(v)}"></label>`;
+  const num = (n, l, v, step = 'any') => `<label class="f"><span>${l}</span><input type="number" name="${n}" step="${step}" min="0" inputmode="decimal" value="${v ?? ''}"></label>`;
+  const sel = (n, l, opts, v) => `<label class="f"><span>${l}</span><select name="${n}">${opts.map(([ov, ol]) => `<option value="${ov}" ${v === ov ? 'selected' : ''}>${ol}</option>`).join('')}</select></label>`;
+  const note = `<label class="f"><span>Note</span><input name="note" value="${esc(r.note || '')}"></label>`;
+  const mins = r.end ? Math.round((Date.parse(r.end) - Date.parse(r.at)) / 60000) : (id ? '' : preset?.mins ?? '');
+  let title = '', f = '';
+  if (T === 'feed' && K === 'bottle'){ title = 'Bottle'; f = `<div class="chips" style="margin-top:12px">${[30, 60, 90, 120, 150].map(v => `<button type="button" class="chip" data-a="mlchip" data-v="${v}">${v} ml</button>`).join('')}</div>${num('ml', 'Amount (ml)', r.ml)}${sel('milk', 'Milk', [['breastmilk', 'Breast milk'], ['formula', 'Formula']], r.milk)}${dt('at', 'When', r.at)}`; }
+  else if (T === 'feed'){ title = 'Breastfeed'; f = `${sel('side', 'Side', [['L', 'Left'], ['R', 'Right'], ['B', 'Both']], r.side)}${dt('at', 'Started', r.at)}${num('mins', 'Minutes (blank if still feeding)', mins, '1')}`; }
+  else if (T === 'diaper'){ title = 'Diaper'; f = `${sel('diaper', 'Kind', [['wet', 'Wet'], ['dirty', 'Poo'], ['both', 'Both']], r.diaper)}${dt('at', 'When', r.at)}${note}`; }
+  else if (T === 'sleep'){ title = 'Sleep'; f = `${dt('at', 'Fell asleep', r.at)}${dt('end', 'Woke up (blank if still asleep)', id ? r.end : r.end ?? isoNow())}`; }
+  else if (T === 'pump'){ title = 'Pumping'; f = `${num('ml', 'Amount (ml)', r.ml)}${dt('at', 'When', r.at)}${note}`; }
+  else if (T === 'growth'){ title = 'Growth'; f = `<div class="two">${num('kg', 'Weight (kg)', r.kg)}${num('cm', 'Length (cm)', r.cm)}</div>${num('head', 'Head (cm)', r.head)}${dt('at', 'When', r.at)}`; }
+  else if (T === 'temp'){ title = 'Temperature'; f = `${num('c', 'Temperature (°C)', r.c, '0.1')}${dt('at', 'When', r.at)}`; }
+  else if (T === 'contraction'){ title = 'Contraction'; f = `${dt('at', 'Started', r.at)}${num('secs', 'Seconds', r.end ? Math.round((Date.parse(r.end) - Date.parse(r.at)) / 1000) : '', '1')}`; }
+  else { title = 'Note'; f = `<label class="f"><span>Note</span><textarea name="note" rows="3">${esc(r.note || '')}</textarea></label>${dt('at', 'When', r.at)}`; }
+  openSheet(`<form data-s="logsave" data-id="${id || ''}" data-type="${T}" data-kind="${K || ''}"><h3>${id ? 'Edit' : 'Log'}: ${title}</h3>${f}
+    <div class="acts">${id ? `<button type="button" class="btn ghost danger" data-a="bdel" data-id="${id}">Delete</button>` : ''}<span class="grow"></span>
+    <button type="button" class="btn ghost" data-a="close">Cancel</button><button class="btn pb" type="submit">Save</button></div></form>`);
+}
+function startFeed(side){
+  const f = runningOf('feed'); if (f) patch('log', f.id, { end: isoNow() });
+  upsert('log', { id: uid('lg'), type: 'feed', kind: 'breast', side, at: isoNow(), end: null, by: me() });
+}
+
+const HEART = 'M12 21c-6-4-9-7.5-9-11a4.5 4.5 0 0 1 9-2 4.5 4.5 0 0 1 9 2c0 3.5-3 7-9 11z';
+const SPARK = 'M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z';
+const deco = (path, style, size, fill) => `<svg class="deco" style="${style}" width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true"><path d="${path}" fill="${fill}"/></svg>`;
+function ringSVG(f){
+  const r = 29, c = 2 * Math.PI * r;
+  return `<svg viewBox="0 0 72 72" width="72" height="72" aria-hidden="true"><circle cx="36" cy="36" r="${r}" fill="var(--surface)" stroke="var(--surface2)" stroke-width="7"/>
+    ${f > 0 ? `<circle cx="36" cy="36" r="${r}" fill="none" stroke="var(--sage)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${(c * Math.min(1, f)).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 36 36)"/>` : ''}</svg>`;
+}
+VIEWS.home = () => {
+  const m = M(), g = gest(), role = me(), isDad = role === 'dad', isMom = role === 'mom';
+  const other = otherRole(role), otherName = esc(nameOf(other));
+  let big, sub, size = '';
+  if (m.birth){
+    big = esc(ageText()); sub = `Born ${esc(fmtDW(m.birth))}`;
+    const cp = ccPlan();
+    if (cp && today() >= cp.checkIn && today() < cp.end) size = `<span class="emo">🏡</span><span>Day ${diffDays(today(), cp.checkIn) + 1} of ${m.cc.days} at ${esc(m.cc.name || 'the centre')}</span>`;
+  } else if (g){
+    big = `${g.w}<small>w</small> ${g.d}<small>d</small>`;
+    sub = g.left > 0 ? `${plural(g.left, 'sleep')} to go` : g.left === 0 ? 'Due today!' : `${plural(-g.left, 'day')} past the due date`;
+    const f = fruitOf(g.w); size = `<span class="emo">${f[0]}</span><span>About the size of ${esc(f[1])}</span>`;
+  } else { big = 'Hello'; sub = 'Add the due date in More, Settings'; }
+  const frac = m.birth ? 1 : g ? g.ga / 280 : 0;
+  const note = noteFor(today()), nudge = nudgeFor(today());
+  const nudgeDone = live('care').some(c => c.date === today() && c.src === 'nudge');
+  const bubble = isDad ? `
+      <p class="hand">${esc(nudge)}</p><div class="sig">Peanut</div>
+      <div class="bubble-acts">${nudgeDone ? '<span class="tag both">Done today. Nice one</span>' : '<button class="btn sm pb" data-a="nudgedone">Done it</button>'}
+        <button class="btn sm ghost" data-a="reminders">🔔 Remind me daily</button></div>
+      <div class="fwd"><div class="small muted"><b>${esc(m.mom)}'s note from Peanut today</b></div><p class="hand sm">${esc(note)}</p>
+        <a class="btn sm ghost" href="${waLink(note)}" target="_blank" rel="noopener">Send it to her on WhatsApp</a></div>`
+    : `<p class="hand">${esc(note)}</p><div class="sig">Peanut</div>
+      <div class="bubble-acts"><button class="btn sm ghost" data-a="reminders">🔔 Get this every morning</button></div>`;
+
+  // love: hugs + notes jar
+  let love = '';
+  if (role){
+    const hin = hugsToday(other), hout = hugsToday(role), inNote = jarToday();
+    const myNote = live('jar').find(n => n.by === role && n.shownOn === today());
+    const waiting = live('jar').filter(n => n.by === role && !n.shownOn).length;
+    const lines = [];
+    if (hin) lines.push(`${otherName} sent you ${plural(hin, 'hug')} today.`);
+    if (hout) lines.push(`You've sent ${plural(hout, 'hug')}.`);
+    if (myNote) lines.push(myNote.openedAt ? `${otherName} read your note today 💗` : `Your note is waiting for ${otherName} today.`);
+    if (waiting) lines.push(`${plural(waiting, 'more note')} in the jar.`);
+    const env = !inNote ? '' : inNote.openedAt
+      ? `<div class="paper"><p class="hand">${esc(inNote.text)}</p><div class="sig">${otherName}</div></div>`
+      : `<button class="env" data-a="jaropen" data-id="${inNote.id}"><span class="seal">💗</span><b>A note from ${otherName}</b><span class="small muted">Just for today. Tap to open.</span></button>`;
+    love = `<section class="love">
+      <div class="love-btns"><button class="btn jelly" data-a="hug" id="hugbtn">💕 Hug ${otherName}</button><button class="btn ghost" data-a="jarwrite">💌 Write a note</button></div>
+      ${lines.length ? `<p class="love-line" id="loveline">${lines.join(' ')}</p>` : ''}${env}</section>`;
+  }
+  const info = icsInfo();
+  const icsStale = m.birth && info && !info.born && info.until >= today();
+
+  // Mama today
+  const latest = live('checkins').filter(c => c.date === today()).sort((a, b) => a.at < b.at ? 1 : -1)[0];
+  const needs = live('needs').filter(n => !n.done);
+  let mama;
+  if (isMom){
+    mama = `<h2>How's today?</h2><div class="panel pad">
+      <div class="picks">${MOODS.map(([v, e, l]) => `<button class="pick-btn ${latest && latest.mood === v ? 'on' : ''}" data-a="quickmood" data-v="${v}" aria-pressed="${!!(latest && latest.mood === v)}"><em>${e}</em>${l}</button>`).join('')}</div>
+      <p class="small muted" style="margin:10px 0 0">One tap saves it${latest ? ' (saved)' : ''}. Sleep, body and feelings are in the ${esc(m.mom)} tab.</p>
+      ${needs.length ? needs.map(n => `<div class="row"><input type="checkbox" class="box" data-c="needdone" data-id="${n.id}" aria-label="Done"><div class="main"><div class="t">${esc(n.text)}</div><div class="s">You asked for this</div></div></div>`).join('') : ''}</div>`;
+  } else {
+    const ci = latest ? `<div class="row"><div style="font-size:30px">${MOODS[(latest.mood || 3) - 1][1]}</div><div class="main">
+        <div class="t">${latest.mood ? MOODS[latest.mood - 1][2] + ' mood' : 'Checked in'}${latest.energy ? `, ${ENERGY[latest.energy - 1][2].toLowerCase()} energy` : ''}${latest.sleep != null ? `, ${latest.sleep}h sleep` : ''}</div>
+        ${(latest.tags || []).length ? `<div class="s">${esc(latest.tags.join(', '))}</div>` : ''}${latest.note ? `<div class="s clamp">“${esc(latest.note)}”</div>` : ''}</div></div>`
+      : `<div class="row"><div class="main"><div class="t">No check-in from ${esc(m.mom)} yet today</div><div class="s">Ask her how she's doing. Don't guess.</div></div></div>`;
+    mama = `<h2>${esc(m.mom)} today</h2><div class="panel">${ci}
+      ${needs.map(n => `<div class="row"><input type="checkbox" class="box" data-c="needdone" data-id="${n.id}" aria-label="Done"><div class="main"><div class="t">${esc(n.text)}</div><div class="s">Would help. Added ${esc(fmtD(n.date))}</div></div></div>`).join('')}</div>`;
+  }
+
+  // baby
+  const live1 = runningCards();
+  let baby = '';
+  if (m.birth){
+    const s = dayStats(today()), lf = lastFeedRec(), ns = nextSide();
+    baby = `<h2>${esc(m.nick)} today</h2>${live1}<div class="panel pad">
+      <div class="since2"><div><span class="small muted">Last feed</span><b ${lf ? `data-ago="${lf.at}"` : ''}>${lf ? agoText(lf.at) : 'None yet'}</b></div><div><span class="small muted">Next side</span><b>${ns === 'L' ? 'Left' : 'Right'}</b></div></div>
+      <div class="tiles">${tile(s.feeds, 'Feeds')}${tile(s.wet, 'Wet')}${tile(s.dirty, 'Poo')}${tile(s.sleep ? fmtDur(s.sleep) : '0', 'Sleep')}</div>
+      <div class="qgrid sm">${[['L','🤱','Left'],['R','🤱','Right'],['wet','💧','Wet'],['dirty','💩','Poo']].map(([k, e, l]) => `<button class="qb ${k === ns ? 'hint' : ''}" data-a="b" data-v="${k}"><em>${e}</em><span>${l}</span></button>`).join('')}</div>
+      <div class="acts" style="margin-top:10px"><button class="btn ghost sm" data-a="tab" data-v="baby">Open the tracker</button></div></div>`;
+  } else if (live1) baby = `<h2>Right now</h2>${live1}`;
+
+  // up next, readiness, dates
+  const tasks = live('tasks').filter(t => !t.done).sort(taskSort).slice(0, 3);
+  const appt = live('appts').filter(a => a.date >= today()).sort((a, b) => (a.date + a.time) < (b.date + b.time) ? -1 : 1)[0];
+  const reg = live('registry').filter(r => r.status !== 'skip'), ess = reg.filter(r => r.priority === 'Essential'), essDone = ess.filter(r => SORTED(r.status)).length;
+  const hb = live('bags').filter(b => b.bag === 'hospital'), cb = live('bags').filter(b => b.bag === 'confinement');
+  const fr = (a, b) => b ? a / b : 0;
+  const stk = (f, emo, label, count, tabv, sub) => `<button class="stk" data-a="tab" data-v="${tabv}" ${sub ? `data-sub="${sub}"` : ''}><span class="stk-ring">${ringSVG(f)}<span>${emo}</span></span><b>${label}</b><span class="small muted">${count}</span></button>`;
+  const kd = keyDates().filter(x => x.d >= today()).slice(0, 4);
+
+  return `<div class="dash home"><div class="col">
+  <section class="scene">
+    ${deco(HEART, 'top:16px;left:47%', 15, 'var(--jelly)')}${deco(SPARK, 'top:64px;left:40%', 11, 'var(--pb)')}${deco(HEART, 'top:112px;right:12px', 10, 'var(--jelly)')}${deco(SPARK, 'top:10px;right:132px', 9, 'var(--surface)')}
+    <div class="scene-top">
+      <div><div class="big">${big}</div><div class="sub">${sub}</div>${!m.birth && m.edd ? `<div class="due">Due ${esc(fmtDW(m.edd))}</div>` : ''}${size ? `<div class="size">${size}</div>` : ''}</div>
+      ${ringPeanut(frac)}
+    </div>
+    <div class="bubble">${bubble}</div>
+  </section>
+  ${icsStale ? `<div class="soft">${esc(m.nick)} is here! Your calendar reminders still have pregnancy notes. <button class="btn sm ghost" data-a="reminders">Make a fresh set</button></div>` : ''}
+  ${love}
+  ${baby}
+  ${mama}
+  </div><div class="col">
+  <h2>Up next</h2>
+  <div class="panel">${appt ? `<div class="row"><div class="main"><div class="t">📅 ${esc(appt.title)}</div><div class="s">${esc(fmtDW(appt.date))}${appt.time ? ', ' + esc(appt.time) : ''}${appt.place ? ', ' + esc(appt.place) : ''}</div></div></div>` : ''}
+    ${tasks.length ? tasks.map(taskRow).join('') : '<div class="empty">Nothing open. Nice.</div>'}
+    <div class="row"><button class="btn ghost sm" data-a="tab" data-v="plan">All to-dos</button></div></div>
+  <h2>Ready for ${esc(m.nick)}?</h2>
+  <div class="panel pad stickers">
+    ${stk(fr(essDone, ess.length), '🧸', 'Gear', `${essDone}/${ess.length} essentials`, 'gear', 'registry')}
+    ${stk(fr(hb.filter(b => b.packed).length, hb.length), '🎒', 'Hospital bag', `${hb.filter(b => b.packed).length}/${hb.length} packed`, 'gear', 'bags')}
+    ${stk(fr(cb.filter(b => b.packed).length, cb.length), '🧳', 'Confinement', `${cb.filter(b => b.packed).length}/${cb.length} packed`, 'gear', 'bags')}
+  </div>
+  <h2>Coming up</h2>
+  <div class="panel">${kd.length ? `<ol class="tl">${kd.map(x => `<li><span class="d">${esc(fmtD(x.d))}</span><span class="dot"></span><span class="x"><b>${esc(x.t)}</b>${x.s ? `<span${x.warn ? ' style="color:var(--alarm);font-weight:800"' : ''}>${esc(x.s)}</span>` : ''}</span></li>`).join('')}</ol>` : '<div class="empty">Add the due date in Settings.</div>'}
+    <div class="row"><button class="btn ghost sm" data-a="tab" data-v="plan">All dates</button></div></div>
+  </div></div>`;
+};
+const tile = (n, l) => `<div class="tile"><b>${n}</b><span>${l}</span></div>`;
+
+
+function timeline(){
+  const kd = keyDates(), t = today();
+  if (!kd.length) return '<div class="empty">Add the due date in Settings.</div>';
+  const items = [...kd];
+  if (!items.some(x => x.d === t)) items.push({ d: t, t: 'Today', s: '', now: true });
+  items.sort((a, b) => a.d < b.d ? -1 : a.d > b.d ? 1 : (a.now ? -1 : 1));
+  return `<ol class="tl">${items.map(x => `<li class="${x.now ? 'now' : x.d < t ? 'past' : ''}">
+    <span class="d">${esc(fmtD(x.d))}</span><span class="dot"></span>
+    <span class="x"><b>${esc(x.t)}</b>${x.s ? `<span${x.warn ? ' style="color:var(--alarm);font-weight:800"' : ''}>${esc(x.s)}</span>` : ''}</span></li>`).join('')}</ol>`;
+}
+function taskSort(a, b){
+  const da = dueOf(a) || '9999', db = dueOf(b) || '9999';
+  return da < db ? -1 : da > db ? 1 : 0;
+}
+function taskRow(t){
+  const late = isLate(t);
+  return `<div class="row ${t.done ? 'done' : ''}"><input type="checkbox" class="box" data-c="taskdone" data-id="${t.id}" ${t.done ? 'checked' : ''} aria-label="Done">
+    <button class="tap main" data-a="edit" data-coll="tasks" data-id="${t.id}"><div class="t">${esc(t.title)}</div>
+    ${t.notes ? `<div class="s clamp">${esc(t.notes)}</div>` : ''}</button>
+    <div style="text-align:right;display:grid;gap:4px;justify-items:end">${t.owner ? `<span class="tag ${t.owner}">${esc(nameOf(t.owner))}</span>` : ''}
+    ${dueLabel(t) ? `<span class="tag ${late ? 'late' : ''}">${esc(dueLabel(t))}</span>` : ''}</div></div>`;
+}
+
+/* --- Mama / wellbeing --- */
+VIEWS.kloe = () => {
+  const m = M(), ph = phase(), mom = esc(m.mom), self = me() === 'mom';
+  const todays = live('checkins').filter(c => c.date === today());
+  const sym = SYMPTOMS[ph];
+  const pick = (name, list) => `<div class="picks" role="radiogroup">${list.map(([v, e, l]) =>
+    `<label class="pick"><input type="radio" name="${name}" value="${v}"><span><em>${e}</em>${l}</span></label>`).join('')}</div>`;
+  const tg = (list, red) => list.map(t => `<label class="tg ${red ? 'red' : ''}"><input type="checkbox" name="tag" value="${esc(t)}"><span>${esc(t)}</span></label>`).join('');
+  const flags = Store.flags.map(f => `<div class="alert"><span class="ic">!</span><div>${esc(f)}<div style="margin-top:6px">${m.deliveryPhone ? `<a href="tel:${esc(m.deliveryPhone)}">Call ${esc(m.hospital || 'the delivery suite')}</a>` : `No delivery suite number saved. <a href="#" data-a="more" data-v="settings">Add it</a>, or call 995 in an emergency.`}</div></div></div>`).join('');
+  const week = addDays(today(), -6);
+  const careWeek = live('care').filter(c => c.date >= week);
+  const needs = live('needs').sort((a, b) => (a.done - b.done) || (a.date < b.date ? 1 : -1)).slice(0, 12);
+  const recent = live('checkins').sort((a, b) => a.at < b.at ? 1 : -1).slice(0, 8);
+  const babyBlues = m.birth && diffDays(today(), m.birth) <= 14;
+  return `
+  ${flags}
+  <h1>${self ? 'How are you today?' : `How's ${mom} today?`}</h1>
+  ${todays.length ? `<p class="muted">Checked in ${plural(todays.length, 'time')} today. Add another any time.</p>` : `<p class="muted">${self ? 'Tap what fits. Skip what doesn\'t.' : `Best filled in by ${mom}, or with her. Everything here is visible to both of you.`}</p>`}
+  <div class="dash"><div class="col">
+  <form class="panel pad" data-s="checkin">
+    <div class="qlabel" style="margin-top:4px">Mood</div>${pick('mood', MOODS)}
+    <div class="qlabel">Energy</div>${pick('energy', ENERGY)}
+    <div class="qlabel">Body</div>${pick('body', BODY)}
+    <div class="two">
+      <label class="f"><span>Sleep last night (hours)</span><input name="sleep" type="number" min="0" max="16" step="0.5" inputmode="decimal"></label>
+      ${ph === 'pregnant' ? `<label class="f"><span>Baby moving?</span><select name="moving"><option value="">Not noted</option><option value="usual">As usual</option><option value="less">Less than usual</option><option value="unsure">Not sure</option></select></label>` : '<span></span>'}
+    </div>
+    <div class="qlabel">Body stuff</div><div class="chips">${tg(sym.normal)}</div>
+    <p class="small muted" style="margin:10px 0 6px">Red dots mean call someone:</p><div class="chips">${tg(sym.red, true)}</div>
+    <div class="qlabel">Feelings</div><div class="chips">${tg(FEELINGS)}</div>
+    <label class="f"><span>Anything on your mind</span><textarea name="note" rows="2"></textarea></label>
+    <label class="f"><span>One thing that would help today</span><input name="help" placeholder="e.g. a nap, ice cream, a quiet evening"></label>
+    <div class="acts"><span class="small muted grow">${self ? `${esc(m.dad)} can see this.` : `${mom} can see this.`}</span><button class="btn pb" type="submit">Save check-in</button></div>
+  </form>
+
+  <h2>When to call</h2>
+  <div class="panel pad">
+    ${(ph === 'pregnant' ? [
+      'Baby moving less than usual. Call the same day, don\'t wait until tomorrow',
+      'Bleeding, or fluid leaking',
+      'Severe headache, blurred vision, or sudden swelling of face or hands',
+      'Regular painful contractions before 37 weeks',
+      'Severe or constant tummy pain, or a fever']
+    : ['Bleeding that soaks a pad within an hour, or big clots',
+      'Fever, or chills',
+      'Severe headache or vision changes',
+      'Chest pain, breathlessness, or a painful swollen calf',
+      'Wound that is red, hot or oozing',
+      'Low mood lasting more than two weeks, or frightening thoughts']).map(x => `<div class="row"><span class="ic" style="color:var(--alarm);font-weight:900">!</span><div class="main">${esc(x)}</div></div>`).join('')}
+    <div class="call">
+      ${m.deliveryPhone ? `<a class="btn pb" href="tel:${esc(m.deliveryPhone)}">Delivery suite</a>` : `<button class="btn ghost" data-a="more" data-v="settings">Add delivery suite no.</button>`}
+      ${m.gynaePhone ? `<a class="btn ghost" href="tel:${esc(m.gynaePhone)}">${esc(m.gynae || 'Gynae')}</a>` : ''}
+      <a class="btn ghost" href="tel:995">Ambulance 995</a>
+      <a class="btn ghost" href="tel:1771">mindline 1771</a>
+      <a class="btn ghost" href="tel:1767">SOS 1767</a>
+      <a class="btn ghost" href="https://wa.me/6566691771">mindline WhatsApp</a>
+    </div>
+    <p class="small muted" style="margin-top:12px">mindline 1771 is Singapore's 24/7 mental health line, by call, WhatsApp 6669 1771 or webchat. Samaritans of Singapore (1767) is 24/7 for anyone in crisis. This list is a prompt, not medical advice. When unsure, call.</p>
+  </div>
+
+  </div><div class="col">
+  <h2>Last 3 weeks</h2>
+  <div class="panel pad">${trendChart()}</div>
+  ${lowMood() ? `<div class="soft sky"><b>Mood has been low for a while.</b> ${babyBlues
+      ? 'The baby blues are common in the first two weeks and usually ease by themselves. If it lasts beyond that or gets worse, see the doctor.'
+      : m.birth ? 'Low mood that lasts more than two weeks after birth is worth checking with the doctor. Postnatal depression is common and treatable.'
+      : 'Worth raising with the gynae at the next visit, sooner if it\'s getting worse. Low mood in pregnancy is common and treatable.'}
+      Talk about it together first.</div>` : ''}
+
+  <h2>What would help <small>${needs.filter(n => !n.done).length} open</small></h2>
+  <div class="panel">
+    ${needs.length ? needs.map(n => `<div class="row ${n.done ? 'done' : ''}"><input type="checkbox" class="box" data-c="needdone" data-id="${n.id}" ${n.done ? 'checked' : ''} aria-label="Done"><div class="main"><div class="t">${esc(n.text)}</div><div class="s">${esc(fmtD(n.date))}</div></div><button class="x-btn" data-a="del" data-coll="needs" data-id="${n.id}" aria-label="Delete">×</button></div>`).join('') : '<div class="empty">Nothing asked for yet.</div>'}
+    <form class="row" data-s="need"><input name="text" placeholder="Add something that would help" aria-label="Add a need"><button class="btn sm" type="submit">Add</button></form>
+  </div>
+
+  <h2>Looking after ${mom} <small>${plural(careWeek.length, 'thing')} this week</small></h2>
+  <div class="panel pad">
+    <div class="chips">${CARE.map(c => `<button class="chip" data-a="care" data-v="${esc(c)}">+ ${esc(c)}</button>`).join('')}</div>
+    <form class="row" data-s="care" style="border:0;padding-bottom:0"><input name="what" placeholder="Something else" aria-label="Log something else"><button class="btn sm" type="submit">Log</button></form>
+    ${careWeek.sort((a, b) => a.u < b.u ? 1 : -1).slice(0, 8).map(c => `<div class="row"><div class="main"><div class="t">${esc(c.what)}</div><div class="s">${esc(fmtDW(c.date))}, ${esc(nameOf(c.by) || '')}</div></div><button class="x-btn" data-a="del" data-coll="care" data-id="${c.id}" aria-label="Delete">×</button></div>`).join('')}
+  </div>
+
+  <h2>Recent check-ins</h2>
+  <div class="panel">${recent.length ? recent.map(c => `<div class="row"><div style="font-size:24px">${c.mood ? MOODS[c.mood - 1][1] : '·'}</div><div class="main">
+    <div class="t">${esc(fmtDW(c.date))} <span class="muted small">${esc(new Date(c.at).toLocaleTimeString('en-SG', { hour: 'numeric', minute: '2-digit' }))}${c.by ? ', by ' + esc(nameOf(c.by)) : ''}</span></div>
+    <div class="s">${[c.energy ? `Energy ${ENERGY[c.energy - 1][2].toLowerCase()}` : '', c.body ? `body ${BODY[c.body - 1][2].toLowerCase()}` : '', c.sleep != null ? `${c.sleep}h sleep` : '', c.moving ? `baby moving: ${c.moving === 'usual' ? 'as usual' : c.moving === 'less' ? 'less' : 'not sure'}` : ''].filter(Boolean).join(', ')}</div>
+    ${(c.tags || []).length ? `<div class="s">${esc(c.tags.join(', '))}</div>` : ''}${c.note ? `<div class="s">“${esc(c.note)}”</div>` : ''}</div>
+    <button class="x-btn" data-a="del" data-coll="checkins" data-id="${c.id}" aria-label="Delete check-in">×</button></div>`).join('') : '<div class="empty">No check-ins yet.</div>'}</div>
+  </div></div>`;
+};
+
+function trendChart(){
+  const days = 21, start = addDays(today(), -(days - 1));
+  const cis = live('checkins').filter(c => c.date >= start);
+  if (cis.length < 2){ Store.chart = null; return '<div class="empty">A couple of check-ins and the trend shows up here.</div>'; }
+  const pts = [];
+  for (let i = 0; i < days; i++){
+    const d = addDays(start, i), cs = cis.filter(c => c.date === d);
+    const avg = k => { const v = cs.filter(c => c[k]).map(c => c[k]); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; };
+    const sl = cs.filter(c => c.sleep != null).map(c => c.sleep);
+    pts.push({ d, mood: avg('mood'), energy: avg('energy'), sleep: sl.length ? sl[sl.length - 1] : null });
+  }
+  Store.chart = pts;
+  const W = 360, H = 150, L = 18, R = 50, T = 8, B = 20, ih = H - T - B, iw = W - L - R;
+  const x = i => L + (i / (days - 1)) * iw, y = v => T + (1 - (v - 1) / 4) * ih;
+  const line = (k) => { let dpath = '', pen = false;
+    pts.forEach((p, i) => { if (p[k] == null){ pen = false; return; } dpath += `${pen ? 'L' : 'M'}${x(i).toFixed(1)} ${y(p[k]).toFixed(1)} `; pen = true; });
+    return dpath; };
+  const dots = (k, col) => pts.map((p, i) => p[k] == null ? '' : `<circle cx="${x(i).toFixed(1)}" cy="${y(p[k]).toFixed(1)}" r="4" fill="${col}" stroke="var(--chart-surface)" stroke-width="2"/>`).join('');
+  const lastIdx = k => { for (let i = pts.length - 1; i >= 0; i--) if (pts[i][k] != null) return i; return -1; };
+  const ly = {}; ['mood', 'energy'].forEach(k => { const i = lastIdx(k); if (i >= 0) ly[k] = y(pts[i][k]) + 4; });
+  if (ly.mood != null && ly.energy != null && Math.abs(ly.mood - ly.energy) < 13){ const mid = (ly.mood + ly.energy) / 2, up = ly.mood <= ly.energy ? 'mood' : 'energy';
+    ly[up] = mid - 6.5; ly[up === 'mood' ? 'energy' : 'mood'] = mid + 6.5; }
+  const lab = (k, text) => { const i = lastIdx(k); return i < 0 ? '' : `<text x="${x(i) + 8}" y="${ly[k].toFixed(1)}" font-size="11" font-weight="800" fill="var(--muted)">${text}</text>`; };
+  const SH = 56, sMax = 12, sy = v => SH - 4 - (Math.min(v, sMax) / sMax) * (SH - 12), bw = Math.min(10, iw / days - 3);
+  const grid = [1, 3, 5].map(v => `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" font-size="10.5" fill="var(--muted)">${v}</text>`).join('');
+  const xt = [0, 7, 14, 20].map(i => `<text x="${x(i)}" y="${H - 4}" text-anchor="${i === 0 ? 'start' : i === 20 ? 'end' : 'middle'}" font-size="10.5" fill="var(--muted)">${i === 20 ? 'Today' : esc(fmtD(addDays(start, i)))}</text>`).join('');
+  return `<div class="legend"><span><i style="background:var(--mood)"></i>Mood</span><span><i style="background:var(--energy)"></i>Energy</span><span class="muted">1 low, 5 great</span></div>
+  <div class="chart"><svg data-chart="mood" viewBox="0 0 ${W} ${H}" role="img" aria-label="Mood and energy over the last 3 weeks">
+    ${grid}${xt}
+    <path d="${line('energy')}" fill="none" stroke="var(--energy)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="${line('mood')}" fill="none" stroke="var(--mood)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    ${dots('energy', 'var(--energy)')}${dots('mood', 'var(--mood)')}${lab('mood', 'Mood')}${lab('energy', 'Energy')}
+    <line class="xh" x1="0" x2="0" y1="${T}" y2="${T + ih}" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3" opacity="0"/>
+    <rect class="hit" x="${L - 8}" y="0" width="${iw + 16}" height="${H}" fill="transparent"/>
+  </svg><div class="tip"></div></div>
+  <div class="legend" style="margin-top:12px"><span><i style="background:var(--sleep);height:8px"></i>Sleep (hours)</span></div>
+  <div class="chart"><svg data-chart="sleep" viewBox="0 0 ${W} ${SH}" role="img" aria-label="Sleep hours over the last 3 weeks">
+    <line x1="${L}" x2="${W - R}" y1="${SH - 4}" y2="${SH - 4}" stroke="var(--line)"/>
+    <line x1="${L}" x2="${W - R}" y1="${sy(8)}" y2="${sy(8)}" stroke="var(--line)" stroke-dasharray="3 4"/><text x="${W - R + 6}" y="${sy(8) + 4}" font-size="10.5" fill="var(--muted)">8h</text>
+    ${pts.map((p, i) => p.sleep == null ? '' : `<rect x="${(x(i) - bw / 2).toFixed(1)}" y="${sy(p.sleep).toFixed(1)}" width="${bw.toFixed(1)}" height="${(SH - 4 - sy(p.sleep)).toFixed(1)}" rx="4" fill="var(--sleep)"><title>${esc(fmtD(p.d))}: ${p.sleep}h</title></rect>`).join('')}
+  </svg></div>`;
+}
+function bindChart(){
+  const svg = document.querySelector('svg[data-chart="mood"]'); if (!svg || !Store.chart) return;
+  const tip = svg.parentElement.querySelector('.tip'), xh = svg.querySelector('.xh'), pts = Store.chart;
+  const W = 360, L = 18, R = 50, iw = W - L - R;
+  const move = e => {
+    const r = svg.getBoundingClientRect(); const vx = (e.clientX - r.left) / r.width * W;
+    const i = Math.max(0, Math.min(pts.length - 1, Math.round((vx - L) / iw * (pts.length - 1)))); const p = pts[i];
+    const px = L + i / (pts.length - 1) * iw;
+    xh.setAttribute('x1', px); xh.setAttribute('x2', px); xh.setAttribute('opacity', 1);
+    const f = v => v == null ? 'none' : (Math.round(v * 10) / 10);
+    tip.textContent = `${fmtDW(p.d)}: mood ${f(p.mood)}, energy ${f(p.energy)}${p.sleep != null ? `, ${p.sleep}h sleep` : ''}`;
+    tip.style.left = Math.max(80, Math.min(r.width - 80, px / W * r.width)) + 'px'; tip.style.top = '14px'; tip.style.opacity = 1;
+  };
+  const leave = () => { tip.style.opacity = 0; xh.setAttribute('opacity', 0); };
+  svg.addEventListener('pointermove', move); svg.addEventListener('pointerdown', move); svg.addEventListener('pointerleave', leave);
+}
+
+/* --- Gear --- */
+VIEWS.gear = () => {
+  const v = Store.ui.gear;
+  const seg = [['registry','Registry'],['bags','Bags'],['thanks','Thank-yous']].map(([k, l]) => `<button data-a="ui" data-k="gear" data-v="${k}" aria-pressed="${v === k}">${l}</button>`).join('');
+  return `<h1>Gear</h1><div class="seg">${seg}</div>${v === 'bags' ? bagsView() : v === 'thanks' ? thanksView() : registryView()}`;
+};
+function registryView(){
+  const all = live('registry'), f = Store.ui.regFilter;
+  const match = r => f === 'all' ? true : f === 'sorted' ? SORTED(r.status) : r.status === f;
+  const items = all.filter(match);
+  const counts = k => all.filter(r => k === 'sorted' ? SORTED(r.status) : r.status === k).length;
+  const toGet = all.filter(r => r.status === 'todo' || r.status === 'us');
+  const essLeft = all.filter(r => r.priority === 'Essential' && (r.status === 'todo' || r.status === 'us')).length;
+  const priced = sum(toGet, r => r.cost);
+  const unpriced = toGet.filter(r => r.cost == null || r.cost === '').length;
+  const filters = [['all','All', all.length],['todo','To get', counts('todo')],['us','US haul', counts('us')],['later','After birth', counts('later')],['sorted','Sorted', counts('sorted')],['skip','Skip', counts('skip')]];
+  const secs = [...new Set([...SECTIONS, ...items.map(r => r.section)])].filter(s => items.some(r => r.section === s));
+  return `
+  <p style="margin:12px 0 6px"><b>${plural(essLeft, 'essential')}</b> still to get. ${money(priced) || '$0'} priced so far${unpriced ? `, ${unpriced} without a price yet` : ''}.</p>
+  <div class="chips scroll" style="margin:10px 0">${filters.map(([k, l, n]) => `<button class="chip" data-a="ui" data-k="regFilter" data-v="${k}" aria-pressed="${f === k}">${l} <span class="n">${n}</span></button>`).join('')}</div>
+  <div class="masonry">${secs.map(s => `<div class="sec"><h3>${esc(s)}</h3><div class="panel">${items.filter(r => r.section === s).map(regRow).join('')}</div></div>`).join('') || '<div class="empty">Nothing here.</div>'}</div>
+  <div class="acts"><button class="btn pb" data-a="add" data-coll="registry">Add an item</button></div>`;
+}
+function regRow(r){
+  return `<div class="row"><button class="tap main" data-a="edit" data-coll="registry" data-id="${r.id}">
+    <div class="t">${esc(r.item)}${r.priority === 'Essential' ? '' : ` <span class="tag">${esc(r.priority === 'Development' ? 'Play' : 'Nice')}</span>`}</div>
+    ${r.brand ? `<div class="s">${esc(r.brand)}</div>` : ''}
+    ${r.frm ? `<div class="s">From ${esc(r.frm)}</div>` : ''}${r.notes ? `<div class="s clamp">${esc(r.notes)}</div>` : ''}</button>
+    <div style="display:grid;gap:6px;justify-items:end">
+      <select class="st st-${r.status}" data-c="regstatus" data-id="${r.id}" aria-label="Status">${STATUS.map(([k, l]) => `<option value="${k}" ${k === r.status ? 'selected' : ''}>${l}</option>`).join('')}</select>
+      ${r.cost != null && r.cost !== '' ? `<span class="price">${money(r.cost)}</span>` : r.costNote ? `<span class="small muted">${esc(r.costNote)}</span>` : ''}
+    </div></div>`;
+}
+function bagsView(){
+  const m = M(), bags = live('bags');
+  const one = (k, title) => {
+    const items = bags.filter(b => b.bag === k), packed = items.filter(b => b.packed).length;
+    const groups = [...new Set(['Mama','Papa','Baby','Docs', ...items.map(b => b.who)])].filter(g => items.some(b => b.who === g));
+    return `<h2>${title} <small>${packed}/${items.length} packed</small></h2>
+    ${k === 'hospital' && m.rule ? `<div class="sticky">${esc(m.rule)}</div>` : ''}
+    <div class="panel">${groups.map(g => `<div class="row" style="padding-bottom:4px"><b class="small muted">${esc(g === 'Mama' ? m.mom : g === 'Papa' ? m.dad : g)}</b></div>` +
+      items.filter(b => b.who === g).map(b => `<div class="row ${b.packed ? 'done' : ''}"><input type="checkbox" class="box" data-c="packed" data-id="${b.id}" ${b.packed ? 'checked' : ''} aria-label="Packed">
+        <button class="tap main" data-a="edit" data-coll="bags" data-id="${b.id}"><div class="t">${esc(b.item)}</div>${b.notes ? `<div class="s">${esc(b.notes)}</div>` : ''}${b.suggested ? '<div class="s">Suggested, not from the sheet</div>' : ''}</button></div>`).join('')).join('')}
+      <form class="row" data-s="bagadd" data-bag="${k}"><select name="who" style="width:auto" aria-label="For">${['Mama','Papa','Baby','Docs'].map(w => `<option value="${w}">${esc(w === 'Mama' ? m.mom : w === 'Papa' ? m.dad : w)}</option>`).join('')}</select><input name="item" placeholder="Add to this bag" aria-label="Item"><button class="btn sm" type="submit">Add</button></form>
+    </div>`;
+  };
+  return `<div class="dash"><div class="col">${one('hospital', 'Hospital bag')}</div><div class="col">${one('confinement', 'Confinement bag')}</div></div>`;
+}
+function thanksView(){
+  const gifts = live('registry').filter(r => r.frm && !/freebie/i.test(r.frm));
+  const byPerson = {};
+  gifts.forEach(g => (byPerson[g.frm] = byPerson[g.frm] || []).push(g));
+  const ppl = Object.keys(byPerson);
+  return `<div class="narrow"><p class="muted" style="margin-top:12px">From anything in the registry with a "gift or loan from" name.</p>
+  <div class="panel">${ppl.length ? ppl.map(p => { const gs = byPerson[p], done = gs.every(g => g.thanked);
+    return `<div class="row ${done ? 'done' : ''}"><input type="checkbox" class="box" data-c="thanked" data-ids="${gs.map(g => g.id).join(',')}" ${done ? 'checked' : ''} aria-label="Thanked">
+      <div class="main"><div class="t">${esc(p)}</div><div class="s">${esc(gs.map(g => g.item + (g.status === 'gift' && /lend|loan/i.test(g.notes || '') ? ' (loan)' : '')).join(', '))}</div></div></div>`; }).join('') : '<div class="empty">No gifts logged yet.</div>'}</div></div>`;
+}
+
+/* --- Plan --- */
+VIEWS.plan = () => {
+  const f = Store.ui.plan, o = Store.ui.owner;
+  let tasks = live('tasks').filter(t => f === 'done' ? t.done : !t.done);
+  if (o !== 'all') tasks = tasks.filter(t => t.owner === o || (o !== 'both' && t.owner === 'both'));
+  tasks.sort(taskSort);
+  const appts = live('appts').sort((a, b) => (a.date + (a.time || '')) < (b.date + (b.time || '')) ? -1 : 1);
+  const up = appts.filter(a => a.date >= today()), past = appts.filter(a => a.date < today()).reverse();
+  const late = live('tasks').filter(isLate).length;
+  return `<h1>Plan</h1><div class="dash"><div class="col">
+  <h2>To-dos ${late ? `<small style="color:var(--alarm)">${late} overdue</small>` : ''}</h2>
+  <div class="chips scroll" style="margin-bottom:10px">
+    <button class="chip" data-a="ui" data-k="plan" data-v="open" aria-pressed="${f === 'open'}">Open</button>
+    <button class="chip" data-a="ui" data-k="plan" data-v="done" aria-pressed="${f === 'done'}">Done</button>
+    <span style="width:8px;flex:none"></span>
+    ${[['all','Everyone'],['dad', nameOf('dad')],['mom', nameOf('mom')]].map(([k, l]) => `<button class="chip" data-a="ui" data-k="owner" data-v="${k}" aria-pressed="${o === k}">${esc(l)}</button>`).join('')}
+  </div>
+  <div class="panel">${tasks.length ? tasks.map(taskRow).join('') : `<div class="empty">${f === 'done' ? 'Nothing ticked off yet.' : 'All clear.'}</div>`}</div>
+  <div class="acts"><button class="btn pb" data-a="add" data-coll="tasks">Add a to-do</button></div>
+  </div><div class="col">
+  <h2>Appointments</h2>
+  <div class="panel">${up.length ? up.map(apptRow).join('') : '<div class="empty">Nothing booked. Add the next gynae visit.</div>'}</div>
+  ${past.length ? `<details><summary>Past (${past.length})</summary><div class="panel">${past.map(apptRow).join('')}</div></details>` : ''}
+  <div class="acts"><button class="btn ghost" data-a="add" data-coll="appts">Add an appointment</button></div>
+  <h2>Key dates</h2><div class="panel">${timeline()}</div>
+  </div></div>`;
+};
+function apptRow(a){
+  return `<div class="row"><button class="tap main" data-a="edit" data-coll="appts" data-id="${a.id}"><div class="t">${esc(a.title)}</div>
+    <div class="s">${esc(fmtDW(a.date))}${a.time ? ', ' + esc(a.time) : ''}${a.place ? ', ' + esc(a.place) : ''}</div>${a.notes ? `<div class="s clamp">${esc(a.notes)}</div>` : ''}</button></div>`;
+}
+
+/* --- Money --- */
+VIEWS.money = () => {
+  const m = M(), cc = m.cc || {}, led = live('money');
+  const ccPaid = sum(led.filter(x => x.cc && x.status === 'paid'), x => x.amount);
+  const opt = (cc.options || []).find(o => +o.days === +cc.days);
+  const ccBal = opt ? Math.max(0, opt.cost - ccPaid) : null;
+  const paid = sum(led.filter(x => x.status === 'paid'), x => x.amount);
+  const due = sum(led.filter(x => x.status === 'due'), x => x.amount) + (ccBal || 0);
+  const est = sum(led.filter(x => x.status === 'estimate'), x => x.amount);
+  const reg = live('registry');
+  const bought = sum(reg.filter(r => r.status === 'bought' || r.status === 'ordered'), r => r.cost);
+  const toGet = sum(reg.filter(r => r.status === 'todo' || r.status === 'us'), r => r.cost);
+  const gifts = sum(reg.filter(r => r.status === 'gift'), r => r.cost);
+  const order = { due: 0, estimate: 1, paid: 2 };
+  return `<div class="dash"><div class="col">
+  <div class="panel pad" style="margin-top:12px">
+    <div class="stat"><span>Paid</span><b>${money(paid) || '$0'}</b></div>
+    <div class="stat"><span>Still to pay</span><b>${money(due) || '$0'}</b></div>
+    ${est ? `<div class="stat"><span>Estimates</span><b>${money(est)}</b></div>` : ''}
+  </div>
+  ${(cc.options || []).length ? `<h2>${esc(cc.name || 'Confinement centre')}</h2>
+  <div class="panel pad">
+    ${cc.days ? '' : '<p style="margin-top:0"><b>Not decided yet.</b> Pick one:</p>'}
+    <div class="chips">${cc.options.map(o => `<button class="chip" data-a="ccdays" data-v="${o.days}" aria-pressed="${+cc.days === +o.days}">${o.days} days, ${money(o.cost)}</button>`).join('')}</div>
+    ${cc.options.length === 2 ? `<p class="small muted">The extra ${Math.abs(cc.options[1].days - cc.options[0].days)} days cost ${money(Math.abs(cc.options[1].cost - cc.options[0].cost))}, about ${money(Math.round(Math.abs(cc.options[1].cost - cc.options[0].cost) / Math.abs(cc.options[1].days - cc.options[0].days)))} a day.</p>` : ''}
+    <div class="stat"><span>Paid so far</span><b>${money(ccPaid) || '$0'}</b></div>
+    ${opt ? `<div class="stat"><span>Balance due</span><b>${money(ccBal)}</b></div>` : ''}
+  </div>` : ''}
+  </div><div class="col">
+  <h2>Ledger</h2>
+  <div class="panel">${led.length ? led.sort((a, b) => (order[a.status] - order[b.status]) || ((b.date || '') < (a.date || '') ? -1 : 1)).map(x => `<div class="row"><button class="tap main" data-a="edit" data-coll="money" data-id="${x.id}">
+      <div class="t">${esc(x.item)}</div><div class="s">${esc([x.status === 'paid' ? 'Paid' : x.status === 'due' ? 'Due' : 'Estimate', x.date ? fmtD(x.date) : '', x.paidBy].filter(Boolean).join(', '))}</div>
+      ${x.notes ? `<div class="s clamp">${esc(x.notes)}</div>` : ''}</button><span class="price">${money(x.amount) || '<span class="small muted">no amount</span>'}</span></div>`).join('') : '<div class="empty">No entries yet.</div>'}</div>
+  <div class="acts"><button class="btn pb" data-a="add" data-coll="money">Add an entry</button></div>
+  <h2>Gear spend</h2>
+  <div class="panel pad">
+    <div class="stat"><span>Bought or ordered</span><b>${money(bought) || '$0'}</b></div>
+    <div class="stat"><span>Still to get (priced items only)</span><b>${money(toGet) || '$0'}</b></div>
+    <div class="stat"><span>Gifted (retail value)</span><b>${money(gifts) || '$0'}</b></div>
+  </div>
+  </div></div>`;
+};
+
+/* --- More --- */
+VIEWS.more = () => {
+  const v = Store.ui.more;
+  const seg = [['names','Names'],['jar','Notes'],['money','Money'],['nanny','Help'],['books','Books'],['links','Links'],['settings','Settings']].map(([k, l]) => `<button data-a="ui" data-k="more" data-v="${k}" aria-pressed="${v === k}">${l}</button>`).join('');
+  const body = { names: namesView, jar: jarView, money: VIEWS.money, nanny: nannyView, books: booksView, links: linksView, settings: settingsView }[v] || namesView;
+  return `<h1>More</h1><div class="seg">${seg}</div><div class="more-body ${v === 'money' || v === 'settings' ? 'wide' : ''}">${body()}</div>`;
+};
+function namesView(){
+  const m = M(), mine = me();
+  const ns = live('names').sort((a, b) => ((b.mom || 0) + (b.dad || 0)) - ((a.mom || 0) + (a.dad || 0)));
+  const hearts = (n, role) => `<div class="hearts" aria-label="${esc(nameOf(role))}'s hearts">${[1, 2, 3].map(i => `<button class="hb ${(n[role] || 0) >= i ? 'on' : ''}" ${mine === role ? `data-a="heart" data-id="${n.id}" data-v="${i}"` : 'disabled'} aria-label="${i} hearts">${role === 'mom' ? '💗' : '💙'}</button>`).join('')}</div>`;
+  return `<p class="muted" style="margin-top:12px">Tap your own hearts. You can only see the other person's.</p>
+  <div class="panel names">${ns.map(n => `<div class="row"><button class="tap main" data-a="edit" data-coll="names" data-id="${n.id}">
+      <div class="t" style="font-family:var(--fd);font-weight:500;font-size:19px">${esc(n.name)} ${esc(m.surname || '')}</div>
+      <div class="s">${esc(n.meaning)}${n.downside ? `. Downside: ${esc(n.downside)}` : ''}</div></button>
+      <div style="display:grid;gap:2px">${['mom', 'dad'].map(r => `<div style="display:flex;align-items:center;gap:6px"><span class="who">${esc(nameOf(r))}</span>${hearts(n, r)}</div>`).join('')}</div></div>`).join('') || '<div class="empty">No names yet.</div>'}</div>
+  <div class="acts"><button class="btn pb" data-a="add" data-coll="names">Add a name</button></div>`;
+}
+function nannyView(){
+  const m = M();
+  const ns = live('nannies'), eng = ns.filter(n => n.status === 'Engaged'), rest = ns.filter(n => n.status !== 'Engaged');
+  const cs = live('centres'), chosen = cs.filter(c => c.chosen), others = cs.filter(c => !c.chosen);
+  const wa = n => { const d = String(n || '').replace(/\D/g, ''); if (!d) return ''; const full = d.length === 8 ? '65' + d : d; return `https://wa.me/${full}`; };
+  const nRow = n => `<div class="row"><button class="tap main" data-a="edit" data-coll="nannies" data-id="${n.id}"><div class="t">${esc(n.name)} <span class="tag">${esc(n.status)}</span></div>
+    <div class="s">${esc([n.kind, n.recBy ? 'via ' + n.recBy : ''].filter(Boolean).join(', '))}</div>${n.notes ? `<div class="s clamp">${esc(n.notes)}</div>` : ''}</button>
+    ${n.contact ? `<a class="btn ghost sm" href="${wa(n.contact)}" target="_blank" rel="noopener">WhatsApp</a>` : ''}</div>`;
+  const cRow = c => `<div class="row"><button class="tap main" data-a="edit" data-coll="centres" data-id="${c.id}"><div class="t">${esc(c.name)}${c.location ? `, ${esc(c.location)}` : ''}</div>
+    ${c.pros ? `<div class="s">Good: ${esc(c.pros)}</div>` : ''}${c.cons ? `<div class="s">Not so good: ${esc(c.cons)}</div>` : ''}${c.notes ? `<div class="s">${esc(c.notes)}</div>` : ''}</button></div>`;
+  return `<h2>Confinement nanny</h2>
+  <div class="panel">${eng.map(nRow).join('') || '<div class="empty">Nobody engaged yet.</div>'}
+    ${m.nannyStart ? `<div class="row"><div class="main"><div class="t">Starts ${esc(fmtDW(m.nannyStart))}</div><div class="s">Change in Settings</div></div></div>` : ''}</div>
+  ${rest.length ? `<details><summary>Everyone else you talked to (${rest.length})</summary><div class="panel">${rest.map(nRow).join('')}</div></details>` : ''}
+  <div class="acts"><button class="btn ghost" data-a="add" data-coll="nannies">Add a nanny</button></div>
+  <h2>Confinement centre</h2>
+  <div class="panel">${chosen.map(cRow).join('') || '<div class="empty">None chosen.</div>'}</div>
+  ${others.length ? `<details><summary>Others you visited (${others.length})</summary><div class="panel">${others.map(cRow).join('')}</div></details>` : ''}`;
+}
+function booksView(){
+  const bs = live('books');
+  return `<div class="panel" style="margin-top:12px">${bs.map(b => `<div class="row"><input type="checkbox" class="box" data-c="bookhave" data-id="${b.id}" ${b.status !== 'wish' ? 'checked' : ''} aria-label="Have it">
+    <button class="tap main" data-a="edit" data-coll="books" data-id="${b.id}"><div class="t">${esc(b.title)}</div><div class="s">${esc([b.author, b.age].filter(Boolean).join(', '))}</div>${b.notes ? `<div class="s clamp">${esc(b.notes)}</div>` : ''}</button>
+    ${b.link ? `<a class="btn ghost sm" href="${esc(b.link)}" target="_blank" rel="noopener">Link</a>` : ''}</div>`).join('') || '<div class="empty">No books yet.</div>'}</div>
+  <div class="acts"><button class="btn pb" data-a="add" data-coll="books">Add a book</button></div>`;
+}
+function linksView(){
+  return `<div class="panel" style="margin-top:12px">${live('links').map(l => `<div class="row"><a class="main t" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a><button class="x-btn" data-a="edit" data-coll="links" data-id="${l.id}" aria-label="Edit">✎</button></div>`).join('') || '<div class="empty">No links yet.</div>'}</div>
+  <div class="acts"><button class="btn pb" data-a="add" data-coll="links">Add a link</button></div>`;
+}
+function settingsView(){
+  const m = M(), cc = m.cc || {}, o = cc.options || [];
+  const fld = (k, l, type = 'text', val) => `<label class="f"><span>${l}</span><input name="${k}" type="${type}" value="${esc(val ?? m[k] ?? '')}"></label>`;
+  const c = Store.cfg;
+  return `<div class="dash"><div class="col"><form class="panel pad" data-s="settings" style="margin-top:12px">
+    <h3 style="margin-top:0">${esc(m.nick)}</h3>
+    <div class="two">${fld('edd', 'Due date', 'date')}${fld('birth', 'Born on', 'date')}</div>
+    <p class="small muted">Fill in "Born on" when ${esc(m.nick)} arrives. The app switches to after-birth mode.</p>
+    <div class="two">${fld('nick', 'Nickname')}${fld('surname', 'Surname')}${fld('mom', 'Mum')}${fld('dad', 'Dad')}</div>
+    ${fld('momPhone', 'Mum\'s mobile, for WhatsApp', 'tel')}
+    <h3>Hospital</h3>
+    <div class="two">${fld('hospital', 'Delivery hospital')}${fld('deliveryPhone', 'Delivery suite phone', 'tel')}${fld('gynae', 'Gynae')}${fld('gynaePhone', 'Gynae clinic phone', 'tel')}</div>
+    <h3>Confinement</h3>
+    ${fld('ccName', 'Centre', 'text', cc.name)}
+    <div class="two">${fld('o1d', 'Option A days', 'number', o[0]?.days)}${fld('o1c', 'Option A total ($)', 'number', o[0]?.cost)}${fld('o2d', 'Option B days', 'number', o[1]?.days)}${fld('o2c', 'Option B total ($)', 'number', o[1]?.cost)}</div>
+    <div class="two">${fld('ccCheckIn', 'Centre check-in', 'date', cc.checkIn)}<span></span>${fld('nannyName', 'Nanny')}${fld('nannyStart', 'Nanny starts', 'date')}</div>
+    <label class="f"><span>Sticky note on the hospital bag</span><input name="rule" value="${esc(m.rule)}"></label>
+    <div class="acts"><button class="btn pb" type="submit">Save settings</button></div>
+  </form></div><div class="col">
+  <h2>This phone</h2>
+  <div class="panel pad">
+    <p style="margin-top:0">I am</p>
+    <div class="chips"><button class="chip" data-a="setme" data-v="mom" aria-pressed="${me() === 'mom'}">${esc(m.mom)}</button><button class="chip" data-a="setme" data-v="dad" aria-pressed="${me() === 'dad'}">${esc(m.dad)}</button></div>
+    <div class="acts"><button class="btn pb" data-a="reminders">Daily reminders on this phone</button></div>
+    <div class="acts"><button class="btn ghost" data-a="lock">Lock and forget passphrase on this phone</button></div>
+  </div>
+  <h2>Sync and backup</h2>
+  <div class="panel pad">
+    <p style="margin-top:0">${c.mode === 'github' ? `Synced through <b>${esc(c.owner)}/${esc(c.repo)}</b>, encrypted, on the <code>${esc(c.branch)}</code> branch.` : 'Stored on this device only, encrypted.'}
+    ${Store.lastSync ? `Last synced ${esc(new Date(Store.lastSync).toLocaleTimeString('en-SG', { hour: 'numeric', minute: '2-digit' }))}.` : ''}</p>
+    ${Store.statusMsg ? `<p class="err">${esc(Store.statusMsg)}</p>` : ''}
+    <div class="acts">${c.mode === 'github' ? '<button class="btn ghost" data-a="syncnow">Sync now</button>' : ''}
+      <button class="btn ghost" data-a="export">Download backup</button>
+      <label class="btn ghost" style="cursor:pointer">Import backup<input type="file" accept=".json" data-c="import" class="sr"></label></div>
+    <p class="small muted">Backups are plain, unencrypted JSON. Keep them off GitHub. Import merges by record, newest edit wins.</p>
+    ${c.mode === 'github' ? `<form data-s="token" class="row" style="margin-top:8px;border-top:1px solid var(--line)"><input name="token" type="password" autocomplete="off" placeholder="New GitHub token" aria-label="New GitHub token"><button class="btn sm" type="submit">Replace token</button></form>
+    <p class="small muted">When the token expires, sync stops. Make a new one (this repo only, Contents read and write) and paste it here. The other phone picks it up automatically.</p>` : ''}
+  </div></div></div>`;
+}
+
+/* ---------- generic editor ---------- */
+const SCHEMA = {
+  registry: { t: 'gear item', f: [['item','Item','text',1],['brand','Brand or model'],['section','Section','select',0,SECTIONS],['priority','Priority','select',0,['Essential','Good to have','Development']],['status','Status','select',0,STATUS],['cost','Price ($)','number'],['frm','Gift or loan from'],['link','Link','url'],['notes','Notes','textarea']], d: { status: 'todo', section: 'Other', priority: 'Essential', thanked: false } },
+  tasks: { t: 'to-do', f: [['title','What','text',1],['owner','Who','select',0,() => [['dad', nameOf('dad')],['mom', nameOf('mom')],['both','Both']]],['due','Due','due'],['notes','Notes','textarea']], d: { done: false, owner: 'both' } },
+  appts: { t: 'appointment', f: [['title','What','text',1],['date','Date','date',1],['time','Time','time'],['place','Where'],['notes','Notes','textarea']], d: {} },
+  money: { t: 'entry', f: [['item','What','text',1],['amount','Amount ($)','number'],['status','Status','select',0,[['paid','Paid'],['due','Due'],['estimate','Estimate']]],['date','Date','date'],['paidBy','Paid by'],['category','Category'],['cc','Counts towards the confinement centre','check'],['notes','Notes','textarea']], d: { status: 'due' } },
+  bags: { t: 'bag item', f: [['item','Item','text',1],['bag','Bag','select',0,[['hospital','Hospital'],['confinement','Confinement']]],['who','For','select',0,['Mama','Papa','Baby','Docs']],['notes','Notes']], d: { packed: false } },
+  nannies: { t: 'nanny', f: [['name','Name','text',1],['status','Status','select',0,['Engaged','Maybe','No','Avoid']],['kind','Agency or individual'],['recBy','Recommended by'],['contact','Phone','tel'],['notes','Notes','textarea']], d: { status: 'Maybe' } },
+  centres: { t: 'centre', f: [['name','Name','text',1],['location','Location'],['chosen','Chosen','check'],['pros','Good'],['cons','Not so good'],['notes','Notes','textarea'],['link','Link','url']], d: {} },
+  books: { t: 'book', f: [['title','Title','text',1],['author','Author'],['age','Age'],['link','Link','url'],['notes','Notes','textarea']], d: { status: 'wish' } },
+  names: { t: 'name', f: [['name','Name','text',1],['meaning','Meaning'],['downside','Downside'],['about','About','textarea'],['link','Link','url']], d: { mom: 0, dad: 0 } },
+  links: { t: 'link', f: [['label','Label','text',1],['url','URL','url',1]], d: {} },
+};
+function fieldHTML([k, label, type = 'text', req, opts], r){
+  const v = r[k] ?? '';
+  if (type === 'select'){
+    const os = (typeof opts === 'function' ? opts() : opts).map(o => Array.isArray(o) ? o : [o, o]);
+    return `<label class="f"><span>${label}</span><select name="${k}">${os.map(([ov, ol]) => `<option value="${esc(ov)}" ${String(v) === String(ov) ? 'selected' : ''}>${esc(ol)}</option>`).join('')}</select></label>`;
+  }
+  if (type === 'textarea') return `<label class="f"><span>${label}</span><textarea name="${k}" rows="3">${esc(v)}</textarea></label>`;
+  if (type === 'check') return `<label class="tg" style="display:inline-block;margin-top:14px"><input type="checkbox" name="${k}" ${v ? 'checked' : ''}><span>${label}</span></label>`;
+  if (type === 'due'){
+    const b = /^birth\+(\d+)$/.exec(v);
+    return `<div class="two"><label class="f"><span>Due date</span><input type="date" name="due" value="${b ? '' : esc(v)}"></label>
+      <label class="f"><span>Or days after birth</span><input type="number" min="0" name="dueBirth" value="${b ? b[1] : ''}"></label></div>`;
+  }
+  return `<label class="f"><span>${label}</span><input name="${k}" type="${type}" ${type === 'number' ? 'step="any" inputmode="decimal"' : ''} value="${esc(v)}" ${req ? 'required' : ''}></label>`;
+}
+function openEditor(coll, id){
+  const sc = SCHEMA[coll]; const r = id ? D()[coll].find(x => x.id === id) : { ...sc.d };
+  openSheet(`<form data-s="edit" data-coll="${coll}" data-id="${id || ''}">
+    <h3>${id ? 'Edit' : 'Add a'} ${sc.t}</h3>
+    ${sc.f.map(f => fieldHTML(f, r)).join('')}
+    <div class="acts">${id ? `<button type="button" class="btn ghost danger" data-a="del" data-coll="${coll}" data-id="${id}">Delete</button>` : ''}
+      <span class="grow"></span><button type="button" class="btn ghost" data-a="close">Cancel</button><button class="btn pb" type="submit">Save</button></div></form>`);
+}
+
+/* ---------- actions ---------- */
+const A = {
+  tab(el){ Store.ui.tab = el.dataset.v; LS.set('peanut.tab', el.dataset.v); Store.flags = Store.ui.tab === 'kloe' ? Store.flags : []; renderApp(); window.scrollTo(0, 0); },
+  ui(el){ Store.ui[el.dataset.k] = el.dataset.v; renderApp(); },
+  more(el){ Store.ui.tab = 'more'; Store.ui.more = el.dataset.v; renderApp(); window.scrollTo(0, 0); },
+  add(el){ openEditor(el.dataset.coll, null); },
+  edit(el){ openEditor(el.dataset.coll, el.dataset.id); },
+  close(){ closeSheet(); },
+  del(el){
+    if (!confirm('Delete this?')) return;
+    removeRec(el.dataset.coll, el.dataset.id); closeSheet(); renderApp(); toast('Deleted');
+  },
+  care(el){ upsert('care', { id: uid('cr'), date: today(), what: el.dataset.v, by: me() }); renderApp(); toast('Logged. Nice one'); },
+  heart(el){ const n = D().names.find(x => x.id === el.dataset.id), v = +el.dataset.v, role = me(); patch('names', n.id, { [role]: n[role] === v ? v - 1 : v }); renderApp(); },
+  ccdays(el){ setMeta({ cc: { ...M().cc, days: +el.dataset.v } }); renderApp(); toast('Saved'); },
+  setme(el){ LS.set('peanut.me', el.dataset.v); renderApp(); },
+  lock(){ if (confirm('Lock Peanut on this phone? You\'ll need the passphrase to open it again.')) lock(); },
+  syncnow(){ Store.dirty ? save() : refresh(); toast('Syncing'); },
+  syncinfo(){ toast(Store.statusMsg || (Store.cfg.mode === 'local' ? 'Saved on this device only' : Store.lastSync ? 'Last synced ' + new Date(Store.lastSync).toLocaleTimeString('en-SG', { hour: 'numeric', minute: '2-digit' }) : statusText())); refresh(); },
+  export(){
+    const blob = new Blob([JSON.stringify(D(), null, 1)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `peanut-backup-${today()}.json`; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  },
+};
+const C = {
+  taskdone(el){ patch('tasks', el.dataset.id, { done: el.checked }); renderApp(); if (el.checked) toast('Done'); },
+  needdone(el){ patch('needs', el.dataset.id, { done: el.checked }); renderApp(); },
+  packed(el){ patch('bags', el.dataset.id, { packed: el.checked }); renderApp(); },
+  regstatus(el){ patch('registry', el.dataset.id, { status: el.value }); renderApp(); },
+  thanked(el){ el.dataset.ids.split(',').forEach(id => patch('registry', id, { thanked: el.checked })); renderApp(); },
+  bookhave(el){ patch('books', el.dataset.id, { status: el.checked ? 'have' : 'wish' }); renderApp(); },
+  async import(el){
+    const f = el.files[0]; if (!f) return;
+    try { const d = JSON.parse(await f.text()); Store.data = merge(D(), d); touch(); renderApp(); toast('Imported'); }
+    catch { toast("That file isn't a Peanut backup"); }
+  },
+};
+const S = {
+  setup: f => doSetup(f),
+  unlock: f => doUnlock(f),
+  who(f, e){ const w = e.submitter?.value || 'mom'; LS.set('peanut.me', w); closeSheet(); renderApp(); },
+  edit(f){
+    const coll = f.dataset.coll, id = f.dataset.id, sc = SCHEMA[coll];
+    const r = id ? { ...D()[coll].find(x => x.id === id) } : { id: uid(coll.slice(0, 2)), ...sc.d };
+    for (const [k, , type] of sc.f){
+      if (type === 'due'){ const b = f.elements.dueBirth.value; r.due = b !== '' ? `birth+${+b}` : f.elements.due.value; continue; }
+      const el = f.elements[k]; if (!el) continue;
+      if (type === 'check'){ r[k] = el.checked; continue; }
+      let v = el.value.trim();
+      if (type === 'number') v = v === '' ? null : Number(v);
+      r[k] = v;
+    }
+    upsert(coll, r); closeSheet(); renderApp(); toast('Saved');
+  },
+  checkin(f){
+    const fd = new FormData(f), num = k => fd.get(k) ? +fd.get(k) : null;
+    const r = { id: uid('ci'), at: new Date().toISOString(), date: today(), mood: num('mood'), energy: num('energy'), body: num('body'),
+      sleep: fd.get('sleep') === '' || fd.get('sleep') == null ? null : +fd.get('sleep'), moving: fd.get('moving') || '',
+      tags: fd.getAll('tag'), note: (fd.get('note') || '').trim(), help: (fd.get('help') || '').trim(), by: me() };
+    if (!r.mood && !r.energy && !r.body && r.sleep == null && !r.tags.length && !r.note && !r.moving && !r.help) return toast('Pick at least one thing');
+    upsert('checkins', r);
+    if (r.help) upsert('needs', { id: uid('nd'), text: r.help, date: today(), done: false, by: me() });
+    Store.flags = flagsFor(r);
+    renderApp(); window.scrollTo(0, 0);
+    toast(Store.flags.length ? 'Saved. Read the note at the top' : 'Saved. Thank you');
+  },
+  need(f){ const t = f.text.value.trim(); if (!t) return; upsert('needs', { id: uid('nd'), text: t, date: today(), done: false, by: me() }); renderApp(); },
+  care(f){ const t = f.what.value.trim(); if (!t) return; upsert('care', { id: uid('cr'), date: today(), what: t, by: me() }); renderApp(); toast('Logged. Nice one'); },
+  bagadd(f){ const t = f.item.value.trim(); if (!t) return; upsert('bags', { id: uid('bg'), bag: f.dataset.bag, who: f.who.value, item: t, packed: false, notes: '' }); renderApp(); },
+  async token(f){
+    const t = f.token.value.trim(); if (!t) return;
+    const old = Store.token; Store.token = t;
+    try {
+      const rr = await ghReq('GET', gh.repoPath()); if (!rr.ok) throw new Error(await ghErr(rr));
+      const main = (await rr.json()).default_branch || 'main';
+      const pub = { v: 1, owner: Store.cfg.owner, repo: Store.cfg.repo, branch: Store.cfg.branch, path: Store.cfg.path, salt: Store.cfg.salt, iter: Store.cfg.iter, token: await seal(Store.key, t) };
+      const existing = await gh.getFile('config.json', main);
+      await gh.putFile('config.json', main, JSON.stringify(pub, null, 2) + '\n', existing?.sha, 'Peanut: rotate token');
+      Store.cfg = { ...pub, mode: 'github' }; LS.set('peanut.ghcfg', JSON.stringify(pub));
+      f.reset(); toast('Token replaced'); refresh();
+    } catch (e){ Store.token = old; toast(e.message); }
+  },
+  settings(f){
+    const g = k => f.elements[k].value.trim();
+    const opts = [[g('o1d'), g('o1c')], [g('o2d'), g('o2c')]].filter(([d, c]) => d && c).map(([d, c]) => ({ days: +d, cost: +c }));
+    const cc = { ...M().cc, name: g('ccName'), options: opts, checkIn: g('ccCheckIn') };
+    if (!opts.some(o => o.days === +cc.days)) cc.days = 0;
+    setMeta({ edd: g('edd'), birth: g('birth'), nick: g('nick') || 'Peanut', surname: g('surname'), mom: g('mom') || 'Mama', dad: g('dad') || 'Papa',
+      hospital: g('hospital'), deliveryPhone: g('deliveryPhone'), momPhone: g('momPhone'), gynae: g('gynae'), gynaePhone: g('gynaePhone'),
+      nannyName: g('nannyName'), nannyStart: g('nannyStart'), rule: g('rule'), cc });
+    renderApp(); toast('Settings saved');
+  },
+};
+/* ---------- notes jar view ---------- */
+function jarView(){
+  const role = me(); if (!role) return '<div class="empty">Pick who you are in Settings first.</div>';
+  const other = otherRole(role), on = esc(nameOf(other));
+  const mine = live('jar').filter(n => n.by === role), theirs = live('jar').filter(n => n.by === other);
+  const waiting = mine.filter(n => !n.shownOn).sort((a, b) => (a.created || 0) - (b.created || 0));
+  const sent = mine.filter(n => n.shownOn).sort((a, b) => a.shownOn < b.shownOn ? 1 : -1);
+  const got = theirs.filter(n => n.shownOn && n.shownOn <= today()).sort((a, b) => a.shownOn < b.shownOn ? 1 : -1);
+  const theirsWaiting = theirs.filter(n => !n.shownOn).length;
+  return `<p class="muted" style="margin-top:12px">Write notes for future days. ${on} gets one a day on the home screen, and won't see it before then.</p>
+  <div class="acts"><button class="btn pb" data-a="jarwrite">💌 Write a note</button></div>
+  ${theirsWaiting ? `<div class="soft">${on} has ${plural(theirsWaiting, 'note')} waiting for you. One a day.</div>` : ''}
+  <h2>In your jar <small>${waiting.length}</small></h2>
+  <div class="panel">${waiting.map((n, i) => `<div class="row"><div class="main"><p class="hand sm" style="margin:0">${esc(n.text)}</p><div class="s">${i === 0 && !live('jar').some(x => x.by === role && x.shownOn === today()) ? 'Goes out today' : `Goes out in about ${plural(i + 1, 'day')}`}</div></div><button class="x-btn" data-a="del" data-coll="jar" data-id="${n.id}" aria-label="Delete">×</button></div>`).join('') || '<div class="empty">Empty. Write one.</div>'}</div>
+  <h2>Notes to you</h2>
+  <div class="panel">${got.map(n => `<div class="row"><div class="main"><p class="hand sm" style="margin:0">${esc(n.text)}</p><div class="s">${esc(fmtDW(n.shownOn))}</div></div></div>`).join('') || '<div class="empty">None yet.</div>'}</div>
+  <h2>Notes you've sent</h2>
+  <div class="panel">${sent.map(n => `<div class="row"><div class="main"><p class="hand sm" style="margin:0">${esc(n.text)}</p><div class="s">${esc(fmtDW(n.shownOn))}. ${n.openedAt ? 'Read 💗' : 'Not opened yet'}</div></div></div>`).join('') || '<div class="empty">None yet.</div>'}</div>`;
+}
+
+/* ---------- new actions ---------- */
+Object.assign(A, {
+  tab(el){
+    Store.ui.tab = el.dataset.v; LS.set('peanut.tab', el.dataset.v);
+    if (el.dataset.sub) Store.ui.gear = el.dataset.sub;
+    if (Store.ui.tab !== 'kloe') Store.flags = [];
+    renderApp(); window.scrollTo(0, 0);
+  },
+  hug(el){
+    upsert('hugs', { id: uid('hg'), date: today(), at: isoNow(), by: me() });
+    burst(el); toast(`Hug sent to ${nameOf(otherRole(me()))}`);
+    setTimeout(renderApp, 700);
+  },
+  jarwrite(){
+    const on = esc(nameOf(otherRole(me())));
+    openSheet(`<form data-s="jar"><h3>A note for ${on}</h3>
+      <p class="muted small">It goes into the jar. ${on} gets one note a day on the home screen.</p>
+      <label class="f"><span>Your note</span><textarea name="text" rows="4" required></textarea></label>
+      <div class="acts"><span class="grow"></span><button type="button" class="btn ghost" data-a="close">Cancel</button><button class="btn pb" type="submit">Put it in the jar</button></div></form>`);
+  },
+  jaropen(el){ patch('jar', el.dataset.id, { openedAt: isoNow() }); renderApp(); burst($('.paper'), 5); },
+  nudgedone(){ upsert('care', { id: uid('cr'), date: today(), what: nudgeFor(today()).replace(/^Psst, Papa\. /, ''), by: me(), src: 'nudge' }); renderApp(); toast('Nice one, Papa'); },
+  quickmood(el){
+    upsert('checkins', { id: uid('ci'), at: isoNow(), date: today(), mood: +el.dataset.v, energy: null, body: null, sleep: null, moving: '', tags: [], note: '', help: '', by: me() });
+    renderApp(); toast(+el.dataset.v <= 2 ? `Saved. ${nameOf('dad')} will see it` : 'Saved. Thank you');
+  },
+  reminders(){
+    const role = me() || 'mom', m = M(), info = icsInfo();
+    openSheet(`<form data-s="reminders"><h3>Daily reminders</h3>
+      <p class="muted">Peanut is a web page, so it can't buzz your phone by itself. This makes a calendar file with one alert a day, each carrying that day's note. Your phone's calendar does the reminding.</p>
+      <div class="qlabel">For</div><div class="chips">
+        <label class="tg"><input type="radio" name="role" value="mom" ${role === 'mom' ? 'checked' : ''}><span>${esc(m.mom)}: Peanut's daily note</span></label>
+        <label class="tg"><input type="radio" name="role" value="dad" ${role === 'dad' ? 'checked' : ''}><span>${esc(m.dad)}: the daily "Psst, Papa"</span></label></div>
+      <div class="two"><label class="f"><span>Time</span><input type="time" name="time" value="${role === 'dad' ? '12:30' : '09:00'}"></label>
+        <label class="f"><span>For the next</span><select name="days"><option value="30">30 days</option><option value="60" selected>60 days</option><option value="90">90 days</option></select></label></div>
+      ${info && info.until ? `<p class="small muted">This phone has reminders until ${esc(fmtDW(info.until))}.${m.birth && !info.born ? ` ${esc(m.nick)} has arrived since, so make a fresh set for the after-birth notes.` : ''}</p>` : ''}
+      <div class="acts"><button class="btn pb block" type="submit">Download calendar file</button></div>
+      <p class="small muted">iPhone: in the Calendar app, add a calendar called Peanut first. Then open the downloaded file, tap Add All, and pick Peanut. Deleting that calendar removes them all. Android: open the file with Google Calendar.</p></form>`);
+  },
+  b(el){
+    const v = el.dataset.v;
+    if (v === 'L' || v === 'R'){ startFeed(v); toast(`Timer started on the ${SIDE[v]}`); }
+    else if (v === 'bottle') return openLogSheet('feed', 'bottle');
+    else if (v === 'wet' || v === 'dirty' || v === 'both'){ const t = isoNow(); upsert('log', { id: uid('lg'), type: 'diaper', diaper: v, at: t, end: t, by: me() }); toast(v === 'wet' ? 'Wet diaper logged' : v === 'dirty' ? 'Poo logged' : 'Wet and poo logged'); }
+    else if (v === 'sleep'){ const s = runningOf('sleep'); if (s){ patch('log', s.id, { end: isoNow() }); toast('Good morning, ' + M().nick); } else { upsert('log', { id: uid('lg'), type: 'sleep', at: isoNow(), end: null, by: me() }); toast('Sweet dreams'); } }
+    else if (v === 'more') return openSheet(`<div class="sheet-pad"><h3>Log something else</h3><div class="qgrid">
+        ${[['pump','','🥛','Pump'],['growth','','⚖️','Growth'],['temp','','🌡️','Temp'],['note','','📝','Note'],['feed','breast','🤱','Past feed'],['sleep','','😴','Past sleep'],['feed','bottle','🍼','Bottle']].map(([t, k, e, l]) => `<button class="qb" data-a="bnew" data-type="${t}" data-kind="${k}"><em>${e}</em><span>${l}</span></button>`).join('')}
+        </div><div class="acts"><span class="grow"></span><button class="btn ghost" data-a="close">Close</button></div></div>`);
+    renderApp();
+  },
+  bnew(el){
+    const t = el.dataset.type, k = el.dataset.kind || undefined;
+    const preset = t === 'feed' && k === 'breast' ? { at: new Date(now() - 15 * 60000).toISOString(), mins: 15 } : t === 'sleep' ? { at: new Date(now() - 3600000).toISOString(), end: isoNow() } : {};
+    openLogSheet(t, k, null, preset);
+  },
+  bedit(el){ openLogSheet(null, null, el.dataset.id); },
+  bdel(el){ if (!confirm('Delete this entry?')) return; removeRec('log', el.dataset.id); closeSheet(); renderApp(); toast('Deleted'); },
+  bstop(el){ patch('log', el.dataset.id, { end: isoNow() }); renderApp(); toast('Saved'); },
+  bswitch(el){ const f = D().log.find(x => x.id === el.dataset.id); startFeed(f && f.side === 'L' ? 'R' : 'L'); renderApp(); toast('Switched sides'); },
+  bclear(){ if (!confirm('Clear all practice entries from the baby log?')) return; live('log').filter(l => l.type !== 'contraction').forEach(l => removeRec('log', l.id)); renderApp(); },
+  ctr(){ const c = runningOf('contraction'); if (c) patch('log', c.id, { end: isoNow() }); else upsert('log', { id: uid('lg'), type: 'contraction', at: isoNow(), end: null, by: me() }); renderApp(); },
+  ctrclear(){ if (!confirm('Clear all contractions?')) return; logs('contraction').forEach(l => removeRec('log', l.id)); renderApp(); },
+  mlchip(el){ const f = el.closest('form'); if (f) f.elements.ml.value = el.dataset.v; },
+});
+Object.assign(S, {
+  jar(f){
+    const t = f.text.value.trim(); if (!t) return;
+    upsert('jar', { id: uid('jr'), text: t, by: me(), created: now(), shownOn: '', openedAt: '' });
+    closeSheet(); renderApp(); toast('In the jar 💌');
+  },
+  reminders(f){
+    const role = f.elements.role.value, days = +f.elements.days.value || 60;
+    download(buildICS(role, f.elements.time.value || '09:00', days), role === 'mom' ? 'peanut-daily-notes.ics' : 'peanut-psst-papa.ics', 'text/calendar');
+    LS.set('peanut.ics', JSON.stringify({ until: addDays(today(), days - 1), born: !!M().birth }));
+    closeSheet(); renderApp(); toast('Downloaded. Open it to add to your calendar');
+  },
+  logsave(f){
+    const id = f.dataset.id, T = f.dataset.type, K = f.dataset.kind || undefined;
+    const r = id ? { ...D().log.find(x => x.id === id) } : { id: uid('lg'), type: T, kind: K, by: me() };
+    const v = n => f.elements[n] ? f.elements[n].value.trim() : undefined;
+    const iso = s => s ? new Date(s).toISOString() : '';
+    if (v('at') !== undefined) r.at = iso(v('at')) || isoNow();
+    if (v('end') !== undefined) r.end = iso(v('end')) || null;
+    if (v('mins') !== undefined) r.end = v('mins') === '' ? null : new Date(Date.parse(r.at) + (+v('mins')) * 60000).toISOString();
+    if (v('secs') !== undefined) r.end = v('secs') === '' ? null : new Date(Date.parse(r.at) + (+v('secs')) * 1000).toISOString();
+    for (const k of ['ml', 'kg', 'cm', 'head', 'c']) if (v(k) !== undefined) r[k] = v(k) === '' ? null : +v(k);
+    for (const k of ['side', 'milk', 'diaper', 'note']) if (v(k) !== undefined) r[k] = v(k);
+    const timed = T === 'sleep' || T === 'contraction' || (T === 'feed' && K !== 'bottle');
+    if (!timed) r.end = r.at;
+    if (T === 'temp' && (r.c == null || isNaN(r.c))) return toast('Add the temperature');
+    if (r.end && Date.parse(r.end) < Date.parse(r.at)) return toast('The end is before the start');
+    upsert('log', r); closeSheet(); renderApp(); toast('Saved');
+  },
+});
+
+/* ---------- clocks ---------- */
+Store.day = today();
+setInterval(() => {
+  document.querySelectorAll('[data-since]').forEach(el => { el.textContent = fmtClock(now() - Date.parse(el.dataset.since)); });
+  document.querySelectorAll('[data-ago]').forEach(el => { el.textContent = agoText(el.dataset.ago); });
+  if (Store.data && today() !== Store.day){ Store.day = today(); renderSafe(); }
+}, 1000);
+
+function hugCheck(){
+  const role = me(); if (!role) return;
+  const n = hugsToday(otherRole(role)), key = today() + ':' + n, seen = LS.get('peanut.hugseen');
+  if (n && seen !== key){ LS.set('peanut.hugseen', key); setTimeout(() => burst($('#loveline') || $('#hugbtn'), Math.min(10, 4 + n)), 350); }
+}
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]'); if (!el || el.disabled) return;
+  const fn = A[el.dataset.a]; if (!fn) return;
+  e.preventDefault(); fn(el, e);
+});
+document.addEventListener('change', e => { const el = e.target.closest('[data-c]'); if (el && C[el.dataset.c]) C[el.dataset.c](el, e); });
+document.addEventListener('submit', e => { const f = e.target.closest('form[data-s]'); if (!f) return; e.preventDefault(); S[f.dataset.s]?.(f, e); });
+
+if (!window.crypto?.subtle){
+  $('#app').innerHTML = gateShell('<h1>Needs a secure page</h1><p class="muted">Open Peanut over https (GitHub Pages does this) or localhost.</p>');
+} else boot().catch(e => { console.error(e); $('#app').innerHTML = gateShell(`<h1>Something went wrong</h1><p class="err">${esc(e.message)}</p><button class="btn pb" onclick="location.reload()">Try again</button>`); });
+</script>
+</body>
+</html>
