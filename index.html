@@ -53,7 +53,7 @@ a{color:var(--pb-ink)}
 .sync i{width:8px;height:8px;border-radius:50%;background:var(--sage);display:inline-block}
 .sync[data-s="saving"] i,.sync[data-s="pending"] i{background:var(--pb);animation:pulse 1s infinite alternate}
 .sync[data-s="offline"] i,.sync[data-s="error"] i{background:var(--alarm)}
-.sync[data-s="local"] i{background:var(--sky)}
+.sync[data-s="local"] i,.sync[data-s="notoken"] i{background:var(--sky)}
 @keyframes pulse{to{opacity:.35}}
 h1{font-family:var(--fd);font-weight:600;font-size:28px;line-height:1.15;margin:14px 0 6px}
 h2{font-family:var(--fd);font-weight:500;font-size:20px;line-height:1.2;margin:30px 0 10px;display:flex;align-items:baseline;gap:10px}
@@ -478,7 +478,7 @@ function setStatus(s, msg){
   const el = $('#sync'); if (el){ el.dataset.s = s; el.querySelector('span').textContent = statusText(); el.title = Store.statusMsg || ''; }
 }
 function statusText(){
-  return ({ synced: 'Synced', pending: 'Saving', saving: 'Saving', local: 'On this phone', offline: 'Offline, kept here', error: 'Sync problem' })[Store.status] || '';
+  return ({ synced: 'Synced', pending: 'Saving', saving: 'Saving', local: 'On this phone', notoken: 'Not syncing yet', offline: 'Offline, kept here', error: 'Sync problem' })[Store.status] || '';
 }
 async function cacheLocal(){
   // keep an encrypted copy on this device so offline edits survive a reload
@@ -495,6 +495,7 @@ async function save(){
   const rev = Store.rev;
   try {
     purge();
+    if (Store.cfg.mode !== 'local' && !Store.token){ await cacheLocal(); setStatus('notoken'); return; }
     if (Store.cfg.mode === 'local'){ Store.dirty = Store.rev !== rev; await cacheLocal(); setStatus('local'); }
     else {
       setStatus('saving');
@@ -521,22 +522,34 @@ async function save(){
     setStatus(navigator.onLine === false ? 'offline' : 'error', e.message);
   } finally {
     Store.saving = false;
-    if (Store.again || Store.dirty){ Store.again = false; if (Store.dirty && Store.status !== 'error' && Store.status !== 'offline') scheduleSave(); }
+    if (Store.again || Store.dirty){ Store.again = false; if (Store.dirty && Store.status !== 'error' && Store.status !== 'offline' && Store.status !== 'notoken') scheduleSave(); }
   }
+}
+async function pickUpToken(){
+  try {
+    const r = await fetch('config.json?t=' + now(), { cache: 'no-store' }); if (!r.ok) return;
+    const j = await r.json(); if (!j.token || j.salt !== Store.cfg.salt) return;
+    Store.token = await unseal(Store.key, j.token); Store.cfg = { ...j, mode: 'github' }; LS.set('peanut.ghcfg', JSON.stringify(j));
+  } catch {}
 }
 async function refresh(){
   if (!Store.data || Store.cfg.mode === 'local' || Store.saving) return;
-  if (Store.dirty){ save(); return; }
+  if (!Store.token) await pickUpToken();
+  if (Store.dirty && Store.token){ save(); return; }
   try {
     const r = await gh.get();
     if (r && r.sha !== Store.sha){
       const remote = JSON.parse(await unseal(Store.key, JSON.parse(r.text)));
       Store.data = merge(remote, D()); Store.sha = r.sha; await cacheLocal(); renderSafe();
     }
-    setStatus('synced');
+    setStatus(Store.token ? 'synced' : 'notoken');
   } catch (e){ setStatus(navigator.onLine === false ? 'offline' : 'error', e.message); }
 }
-setInterval(() => { if (document.visibilityState === 'visible') refresh(); }, 45000);
+let lastPoll = now();
+setInterval(() => {
+  if (document.visibilityState !== 'visible') return;
+  if (now() - lastPoll >= (Store.token ? 45000 : 180000)){ lastPoll = now(); refresh(); } // GitHub allows 60 unsigned reads an hour
+}, 15000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refresh(); });
 window.addEventListener('online', () => refresh());
 
@@ -571,7 +584,7 @@ async function openVault(key){
     Store.data = normalise(JSON.parse(await unseal(key, JSON.parse(blob))));
     Store.dirty = false; setStatus('local');
   } else {
-    Store.token = await unseal(key, Store.cfg.token); // throws on wrong passphrase
+    Store.token = Store.cfg.token ? await unseal(key, Store.cfg.token) : null;
     let cached = null;
     try { const c = JSON.parse(LS.get(CACHE) || 'null'); if (c && c.repo === Store.cfg.owner + '/' + Store.cfg.repo) cached = c; } catch {}
     let cachedData = null;
@@ -583,7 +596,7 @@ async function openVault(key){
       Store.sha = r.sha;
       if (cachedData && cached.dirty){ Store.data = merge(remote, cachedData); Store.dirty = true; }
       else { Store.data = normalise(remote); Store.dirty = false; }
-      setStatus('synced');
+      setStatus(Store.token ? 'synced' : 'notoken');
     } catch (e){
       if (!cachedData) throw e;
       Store.data = normalise(cachedData); Store.sha = cached.sha; Store.dirty = !!cached.dirty;
@@ -641,14 +654,11 @@ function renderSetup(){
 }
 function renderUnlock(){
   $('#app').innerHTML = gateShell(`
-    <h1>Hello again</h1>
-    <p class="muted">Enter the passphrase to open Peanut.</p>
+    <h1>Peanut</h1>
     <form data-s="unlock">
-      <label class="f"><span>Passphrase</span><input name="pass" type="password" autocomplete="current-password" required autofocus></label>
-      <label class="tg" style="display:inline-block;margin-top:12px"><input type="checkbox" name="remember" checked><span>Keep this phone unlocked</span></label>
+      <label class="f"><span>Passcode</span><input name="pass" type="password" autocomplete="current-password" required autofocus></label>
       <div class="err" id="err"></div>
-      <button class="btn pb block" type="submit">Unlock</button>
-      <p class="small muted" style="margin-top:14px">${Store.cfg.mode === 'github' ? 'Synced through GitHub.' : 'Stored on this device only.'} Forgotten passphrases can't be recovered.</p>
+      <button class="btn pb block" type="submit">Open</button>
     </form>`);
 }
 async function doSetup(f){
@@ -693,7 +703,7 @@ async function doSetup(f){
       if (await gh.get()) throw new Error('This repo already has a Peanut vault. Wait for Pages to update and unlock it instead, or delete peanut.vault.json on the peanut-data branch to start over.');
       Store.key = key; Store.data = data;
       Store.sha = await gh.put(JSON.stringify(await seal(key, JSON.stringify(data))), null);
-      const pub = { v: 1, owner, repo, branch: 'peanut-data', path: 'peanut.vault.json', salt, iter: ITER, token: await seal(key, token) };
+      const pub = { v: 1, owner, repo, branch: 'peanut-data', path: 'peanut.vault.json', salt, iter: ITER, check: await seal(key, 'peanut'), token: await seal(key, token) };
       const existing = await gh.getFile('config.json', main);
       await gh.putFile('config.json', main, JSON.stringify(pub, null, 2) + '\n', existing?.sha, 'Peanut: add encrypted config');
       Store.cfg = { ...pub, mode: 'github' };
@@ -714,13 +724,13 @@ async function doUnlock(f){
     const key = await deriveKey(f.pass.value, Store.cfg.salt, Store.cfg.iter);
     try {
       if (Store.cfg.mode === 'local') await unseal(key, JSON.parse(LS.get(LOCALCFG + '.blob')));
-      else await unseal(key, Store.cfg.token);
-    } catch { throw new Error("That passphrase didn't open it."); }
-    if (f.remember.checked) LS.set(KEYSTORE, JSON.stringify({ salt: Store.cfg.salt, k: await exportKey(key) }));
+      else await unseal(key, Store.cfg.check || Store.cfg.token);
+    } catch { throw new Error("That's not the passcode."); }
+    LS.set(KEYSTORE, JSON.stringify({ salt: Store.cfg.salt, k: await exportKey(key) }));
     await openVault(key);
   } catch (e){
     err.textContent = e.message || String(e);
-    btn.disabled = false; btn.textContent = 'Unlock';
+    btn.disabled = false; btn.textContent = 'Open';
   }
 }
 function lock(){
@@ -1424,6 +1434,7 @@ VIEWS.home = () => {
     </div>
     <div class="bubble">${bubble}</div>
   </section>
+  ${needsToken() ? syncCard() : ''}
   ${icsStale ? `<div class="soft">${esc(m.nick)} is here! Your calendar reminders still have pregnancy notes. <button class="btn sm ghost" data-a="reminders">Make a fresh set</button></div>` : ''}
   ${love}
   ${baby}
@@ -1826,7 +1837,7 @@ function settingsView(){
     <p style="margin-top:0">I am</p>
     <div class="chips"><button class="chip" data-a="setme" data-v="mom" aria-pressed="${me() === 'mom'}">${esc(m.mom)}</button><button class="chip" data-a="setme" data-v="dad" aria-pressed="${me() === 'dad'}">${esc(m.dad)}</button></div>
     <div class="acts"><button class="btn pb" data-a="reminders">Daily reminders on this phone</button></div>
-    <div class="acts"><button class="btn ghost" data-a="lock">Lock and forget passphrase on this phone</button></div>
+    <div class="acts"><button class="btn ghost" data-a="lock">Lock this device</button></div>
   </div>
   <h2>Sync and backup</h2>
   <div class="panel pad">
@@ -1837,10 +1848,20 @@ function settingsView(){
       <button class="btn ghost" data-a="export">Download backup</button>
       <label class="btn ghost" style="cursor:pointer">Import backup<input type="file" accept=".json" data-c="import" class="sr"></label></div>
     <p class="small muted">Backups are plain, unencrypted JSON. Keep them off GitHub. Import merges by record, newest edit wins.</p>
-    ${c.mode === 'github' ? `<form data-s="token" class="row" style="margin-top:8px;border-top:1px solid var(--line)"><input name="token" type="password" autocomplete="off" placeholder="New GitHub token" aria-label="New GitHub token"><button class="btn sm" type="submit">Replace token</button></form>
+    ${needsToken() ? syncCard() : c.mode === 'github' ? `<form data-s="token" class="row" style="margin-top:8px;border-top:1px solid var(--line)"><input name="token" type="password" autocomplete="off" placeholder="New GitHub token" aria-label="New GitHub token"><button class="btn sm" type="submit">Replace token</button></form>
     <p class="small muted">When the token expires, sync stops. Make a new one (this repo only, Contents read and write) and paste it here. The other phone picks it up automatically.</p>` : ''}
   </div></div></div>`;
 }
+
+function syncCard(){
+  return `<div class="soft sky"><b>Turn on syncing. Once, on any device.</b>
+    <p class="small" style="margin:6px 0 8px">Until then, changes stay on the device you made them on.</p>
+    <ol class="small" style="margin:0 0 10px;padding-left:20px">
+      <li><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Make a GitHub token</a>. Repository access: Only select repositories, pick <b>peanut</b>. Permissions: Contents, Read and write. Generate.</li>
+      <li>Paste it here.</li></ol>
+    <form data-s="token" class="row" style="border:0;padding:0"><input name="token" type="password" autocomplete="off" placeholder="github_pat_..." aria-label="GitHub token"><button class="btn sm pb" type="submit">Turn on</button></form></div>`;
+}
+const needsToken = () => Store.cfg && Store.cfg.mode === 'github' && !Store.token;
 
 /* ---------- generic editor ---------- */
 const SCHEMA = {
@@ -1895,9 +1916,9 @@ const A = {
   heart(el){ const n = D().names.find(x => x.id === el.dataset.id), v = +el.dataset.v, role = me(); patch('names', n.id, { [role]: n[role] === v ? v - 1 : v }); renderApp(); },
   ccdays(el){ setMeta({ cc: { ...M().cc, days: +el.dataset.v } }); renderApp(); toast('Saved'); },
   setme(el){ LS.set('peanut.me', el.dataset.v); renderApp(); },
-  lock(){ if (confirm('Lock Peanut on this phone? You\'ll need the passphrase to open it again.')) lock(); },
+  lock(){ if (confirm('Lock Peanut on this device? You\'ll need the passcode to open it again.')) lock(); },
   syncnow(){ Store.dirty ? save() : refresh(); toast('Syncing'); },
-  syncinfo(){ toast(Store.statusMsg || (Store.cfg.mode === 'local' ? 'Saved on this device only' : Store.lastSync ? 'Last synced ' + new Date(Store.lastSync).toLocaleTimeString('en-SG', { hour: 'numeric', minute: '2-digit' }) : statusText())); refresh(); },
+  syncinfo(){ toast(Store.status === 'notoken' ? 'Not syncing yet. Turn it on from the Home page' : Store.statusMsg || (Store.cfg.mode === 'local' ? 'Saved on this device only' : Store.lastSync ? 'Last synced ' + new Date(Store.lastSync).toLocaleTimeString('en-SG', { hour: 'numeric', minute: '2-digit' }) : statusText())); refresh(); },
   export(){
     const blob = new Blob([JSON.stringify(D(), null, 1)], { type: 'application/json' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `peanut-backup-${today()}.json`; a.click();
@@ -1955,11 +1976,11 @@ const S = {
     try {
       const rr = await ghReq('GET', gh.repoPath()); if (!rr.ok) throw new Error(await ghErr(rr));
       const main = (await rr.json()).default_branch || 'main';
-      const pub = { v: 1, owner: Store.cfg.owner, repo: Store.cfg.repo, branch: Store.cfg.branch, path: Store.cfg.path, salt: Store.cfg.salt, iter: Store.cfg.iter, token: await seal(Store.key, t) };
+      const pub = { v: 1, owner: Store.cfg.owner, repo: Store.cfg.repo, branch: Store.cfg.branch, path: Store.cfg.path, salt: Store.cfg.salt, iter: Store.cfg.iter, check: Store.cfg.check || await seal(Store.key, 'peanut'), token: await seal(Store.key, t) };
       const existing = await gh.getFile('config.json', main);
       await gh.putFile('config.json', main, JSON.stringify(pub, null, 2) + '\n', existing?.sha, 'Peanut: rotate token');
       Store.cfg = { ...pub, mode: 'github' }; LS.set('peanut.ghcfg', JSON.stringify(pub));
-      f.reset(); toast('Token replaced'); refresh();
+      f.reset(); toast('Syncing is on for both phones'); renderApp(); Store.dirty ? save() : refresh();
     } catch (e){ Store.token = old; toast(e.message); }
   },
   settings(f){

@@ -1,0 +1,14 @@
+{
+  "v": 1,
+  "owner": "angyuqian",
+  "repo": "peanut",
+  "branch": "peanut-data",
+  "path": "peanut.vault.json",
+  "salt": "bOq/HFjK1d7JSxAl4N169g==",
+  "iter": 600000,
+  "check": {
+    "v": 1,
+    "iv": "CohsnOScpiRsYFTQ",
+    "ct": "Ff3HW12yPRC+UmhxO/JBp61Tpn/8HA=="
+  }
+}
